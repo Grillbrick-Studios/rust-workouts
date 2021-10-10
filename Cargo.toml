@@ -8,3 +8,4 @@ edition = "2018"
 [dependencies]
 serde = { version = "1.0.130", features = ["derive"] }
 serde_yaml = "0.8.21"
+terminal-menu = "2.0.0"
