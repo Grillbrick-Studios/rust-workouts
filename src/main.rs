@@ -1,24 +1,33 @@
 use std::error::Error;
 
-use terminal_menu::{button, menu, mut_menu, run, TerminalMenuItem};
+use terminal_menu::{button, label, menu, mut_menu, run, TerminalMenuItem};
 
-use crate::lib::workout::Workout;
+use lib::workout::Workout;
+// use std::thread::sleep;
+use crate::lib::util::clear_screen;
 
 mod lib;
 
 fn main() -> Result<(), Box<dyn Error>> {
-  let workouts = vec![
-    Workout::load_file("data/3-1-LBA.yml")?,
-    Workout::load_file("data/3-2-UBA.yml")?,
-    Workout::load_file("data/3-3-LBA.yml")?,
-    Workout::load_file("data/3-4-UBA.yml")?,
-  ];
+  show_workouts()?;
+  Ok(())
+}
 
-  let list: Vec<TerminalMenuItem> =
+fn show_workouts() -> Result<(), Box<dyn Error>> {
+  let workouts = Workout::load_all()?;
+
+  let mut list: Vec<TerminalMenuItem> =
     workouts.iter().map(|w| button(&w.title)).collect();
+  list.insert(0, label("Please select a workout:"));
   let m = menu(list);
+  clear_screen();
   run(&m);
 
-  println!("workout = {:#?}", workouts[mut_menu(&m).selected_item_index()]);
+  let title = mut_menu(&m).selected_item_name().to_owned();
+
+  if let Some(workout) = workouts.iter().find(|w| w.title == title) {
+    workout.run();
+  }
+
   Ok(())
 }
