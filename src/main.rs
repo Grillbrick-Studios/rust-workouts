@@ -3,10 +3,11 @@ use std::error::Error;
 use terminal_menu::{button, label, menu, mut_menu, run, TerminalMenuItem};
 
 use lib::workout::Workout;
+
 // use std::thread::sleep;
 use crate::lib::util::clear_screen;
 
-mod lib;
+pub mod lib;
 
 fn main() -> Result<(), Box<dyn Error>> {
   show_workouts()?;

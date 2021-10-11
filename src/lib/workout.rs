@@ -1,37 +1,18 @@
-use serde::{Deserialize, Serialize};
-use serde_yaml::from_reader;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
-// use std::thread::sleep;
-use crate::lib::util::clear_screen;
 use std::io::{stdin, stdout, Write};
 use std::time::Duration;
+
+use serde::{Deserialize, Serialize};
+use serde_yaml::from_reader;
 use termion::{
   color, cursor, event::Key, input::TermRead, raw::IntoRawMode, style,
 };
 
-/// [WARMUP] is a constant exercise that is shown during the warmup period.
-const WARMUP: (&str, &str) = (
-  "Warmup",
-  "Run in place, \
-jumping-jacks, or anything \
-    to get \
-    your \
-    heart rate up.",
-);
-
-/// [REST] is a constant exercise that is shown in between each set of exercises.
-const REST: (&str, &str) = (
-  "REST",
-  "Take a break, \
-  Get a drink of water, \
-  Take it easy!",
-);
-
-/// [COOLDOWN] is a constant exercise that is shown at the end of the workout until the program
-/// exits.
-const COOLDOWN: (&str, &str) = ("Cooldown", "Great Job!");
+// use std::thread::sleep;
+use crate::lib::screens::{Screen, ScreenType};
+use crate::lib::util::clear_screen;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum WorkoutType {
@@ -61,6 +42,35 @@ pub struct Workout {
 }
 
 impl Workout {
+  /// new generates a default hashmap and then fills it with the provided workouts.
+  pub fn new(
+    title: &str,
+    link: Option<String>,
+    day: DayOfWeek,
+    workout_type: WorkoutType,
+    sets: Vec<Vec<(String, String)>>,
+  ) -> Self {
+    let mut hash_sets = vec![];
+
+    // break down the sets
+    for set in sets {
+      let mut hash = HashMap::new();
+      for (k, v) in set {
+        hash.insert(k, v);
+      }
+      hash_sets.push(hash);
+    }
+
+    Workout {
+      title: title.to_string(),
+      link: if let Some(link) = link { link } else { "".to_string() },
+      day,
+      warmup_length: 60 * 5,
+      workout_type,
+      sets: hash_sets,
+    }
+  }
+
   /// Load a single yaml file as a workout.
   pub fn load_file(filename: &str) -> Result<Self, Box<dyn Error>> {
     let f = File::open(filename)?;
@@ -87,55 +97,65 @@ impl Workout {
       seconds +=
         // Repeat 3 times
         3 *
-        (s.iter().count() as u64
-        // 20 seconds per workout
-        * 20
-        // 60 seconds rest
-        + 60);
+          (s.iter().count() as u64
+            // 20 seconds per workout
+            * 20
+            // 60 seconds rest
+            + 60);
     });
 
     Duration::from_secs(seconds)
   }
 
-  pub fn run(&self) {
-    // reconfigure the constant exercises to be compatible with owned exercises.
-    let _rest = (&String::from(REST.0), &String::from(REST.1));
-    let warmup = (&String::from(WARMUP.0), &String::from(WARMUP.1));
-    let cooldown_exercise =
-      (String::from(COOLDOWN.0), String::from(COOLDOWN.1));
-    let mut cooldown_set = HashMap::new();
-    cooldown_set.insert(cooldown_exercise.0, cooldown_exercise.1);
+  pub fn screens(&self) -> Vec<Screen> {
+    let mut result = vec![];
 
+    for i in 0..self.sets.len() {
+      if let Some(set) = self.sets.get(i) {
+        if i == 0 {
+          result.push(Screen::warmup_with_set(set));
+        }
+        result.push(Screen::set_with_rest(set, i + 1));
+      }
+    }
+    result.push(Screen::cooldown());
+
+    result
+  }
+
+  pub fn run(&self) {
     // Get the timers
     let _elapsed: u64 = 0;
     let _current: u64 = 0;
     let _remaining = self.duration().as_secs();
 
-    // Get the number of sets
-    let num_sets = self.sets.len();
+    // Get the screens
+    let screens = self.screens();
+    let cooldown = Screen::cooldown();
 
     // Go into raw mode
     let mut stdout = stdout().into_raw_mode().unwrap();
 
-    // show warmup
-    // TODO: Break warmup and each set into screens that are generated and iterated through.
-    clear_screen();
-    write!(stdout, "{}", Self::show_exercise(warmup)).unwrap();
-    stdout.flush().unwrap();
-
     // Iterate through the sets.
     let mut i = 0;
     loop {
-      // get the current set
-      let current_set = self.sets.get(i).or(Some(&cooldown_set)).unwrap();
+      clear_screen();
+      // get the current screen
+      let screen = screens.get(i).or(Some(&cooldown)).unwrap();
 
-      // show the set
+      // show the screen
       write!(
         stdout,
-        "{}Set {}! \n{}",
-        style::Framed,
-        i + 1,
-        Self::show_set(current_set)
+        "{}{}{}\n{}",
+        style::Bold,
+        match screen.screen_type {
+          ScreenType::WarmUp => "WARMING UP!".to_string(),
+          ScreenType::Rest => "REST!".to_string(),
+          ScreenType::Exercise(i) => format!("SET {}", i),
+          ScreenType::Cooldown => "Aah - Feel better?".to_string(),
+        },
+        style::Reset,
+        screen,
       )
       .unwrap();
       stdout.flush().unwrap();
@@ -159,7 +179,7 @@ impl Workout {
           // down and right will both go forward one screen.
           Key::Down | Key::Right => {
             write!(stdout, "Going forth...").unwrap();
-            i += if i < num_sets { 1 } else { 0 };
+            i += if i < screens.len() { 1 } else { 0 };
             clear_screen();
             stdout.flush().unwrap();
             break;
@@ -171,7 +191,7 @@ impl Workout {
   }
 
   /// Iterates through a given set and displays to the screen
-  fn show_set(set: &HashMap<String, String>) -> String {
+  pub fn show_set(set: &HashMap<String, String>) -> String {
     let mut result = String::new();
     for exercise in set.iter() {
       result += &Self::show_exercise(exercise);
@@ -180,7 +200,7 @@ impl Workout {
   }
 
   /// Show a single exercise
-  fn show_exercise(exercise: (&String, &String)) -> String {
+  pub fn show_exercise(exercise: (&String, &String)) -> String {
     let (exercise, description) = exercise;
     format!(
       "\n\
@@ -195,6 +215,52 @@ impl Workout {
       style::Reset,
       color::Fg(color::Reset),
       description,
+    )
+  }
+}
+
+impl Default for Workout {
+  fn default() -> Self {
+    Workout::new(
+      "Default Workout",
+      None,
+      DayOfWeek::Monday,
+      WorkoutType::UpperBodyAbs,
+      vec![
+        vec![
+          ("Do stuff".to_string(), "This is how you do that stuff".to_string()),
+          (
+            "Do other stuff".to_string(),
+            "This is how you do that other stuff".to_string(),
+          ),
+          (
+            "Do more stuff".to_string(),
+            "This is how you do that stuff".to_string(),
+          ),
+        ],
+        vec![
+          ("Do stuff".to_string(), "This is how you do that stuff".to_string()),
+          (
+            "Do other stuff".to_string(),
+            "This is how you do that other stuff".to_string(),
+          ),
+          (
+            "Do more stuff".to_string(),
+            "This is how you do that stuff".to_string(),
+          ),
+        ],
+        vec![
+          ("Do stuff".to_string(), "This is how you do that stuff".to_string()),
+          (
+            "Do other stuff".to_string(),
+            "This is how you do that other stuff".to_string(),
+          ),
+          (
+            "Do more stuff".to_string(),
+            "This is how you do that stuff".to_string(),
+          ),
+        ],
+      ],
     )
   }
 }
