@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use serde_yaml::from_reader;
-use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 // use std::thread::sleep;
@@ -50,6 +49,10 @@ pub enum DayOfWeek {
   Sunday,
 }
 
+type Exercise = (String, String);
+
+type ExerciseSet = Vec<Exercise>;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Workout {
   pub title: String,
@@ -57,7 +60,7 @@ pub struct Workout {
   pub day: DayOfWeek,
   pub warmup_length: u64,
   pub workout_type: WorkoutType,
-  pub sets: Vec<HashMap<String, String>>,
+  pub sets: Vec<ExerciseSet>,
 }
 
 impl Workout {
@@ -87,7 +90,7 @@ impl Workout {
       seconds +=
         // Repeat 3 times
         3 *
-        (s.iter().count() as u64
+        (s.len() as u64
         // 20 seconds per workout
         * 20
         // 60 seconds rest
@@ -100,11 +103,10 @@ impl Workout {
   pub fn run(&self) {
     // reconfigure the constant exercises to be compatible with owned exercises.
     let _rest = (&String::from(REST.0), &String::from(REST.1));
-    let warmup = (&String::from(WARMUP.0), &String::from(WARMUP.1));
+    let warmup = (String::from(WARMUP.0), String::from(WARMUP.1));
     let cooldown_exercise =
       (String::from(COOLDOWN.0), String::from(COOLDOWN.1));
-    let mut cooldown_set = HashMap::new();
-    cooldown_set.insert(cooldown_exercise.0, cooldown_exercise.1);
+    let cooldown_set = vec![cooldown_exercise];
 
     // Get the timers
     let _elapsed: u64 = 0;
@@ -120,7 +122,7 @@ impl Workout {
     // show warmup
     // TODO: Break warmup and each set into screens that are generated and iterated through.
     clear_screen();
-    write!(stdout, "{}", Self::show_exercise(warmup)).unwrap();
+    write!(stdout, "{}", Self::show_exercise(&warmup)).unwrap();
     stdout.flush().unwrap();
 
     // Iterate through the sets.
@@ -171,7 +173,7 @@ impl Workout {
   }
 
   /// Iterates through a given set and displays to the screen
-  fn show_set(set: &HashMap<String, String>) -> String {
+  fn show_set(set: &[Exercise]) -> String {
     let mut result = String::new();
     for exercise in set.iter() {
       result += &Self::show_exercise(exercise);
@@ -180,7 +182,7 @@ impl Workout {
   }
 
   /// Show a single exercise
-  fn show_exercise(exercise: (&String, &String)) -> String {
+  fn show_exercise(exercise: &Exercise) -> String {
     let (exercise, description) = exercise;
     format!(
       "\n\
@@ -196,5 +198,61 @@ impl Workout {
       color::Fg(color::Reset),
       description,
     )
+  }
+}
+
+impl Default for Workout {
+  fn default() -> Self {
+    Workout {
+      title: "".to_string(),
+      link: "".to_string(),
+      day: DayOfWeek::Monday,
+      warmup_length: 0,
+      workout_type: WorkoutType::LowerBodyAbs,
+      sets: vec![
+        vec![
+          (
+            "Do stuff".to_string(),
+            "This is you how you do that stuff".to_string(),
+          ),
+          (
+            "Do other stuff".to_string(),
+            "This is you how you do that other stuff".to_string(),
+          ),
+          (
+            "Do more stuff".to_string(),
+            "This is you how you do that stuff".to_string(),
+          ),
+        ],
+        vec![
+          (
+            "Do stuff".to_string(),
+            "This is you how you do that stuff".to_string(),
+          ),
+          (
+            "Do other stuff".to_string(),
+            "This is you how you do that other stuff".to_string(),
+          ),
+          (
+            "Do more stuff".to_string(),
+            "This is you how you do that stuff".to_string(),
+          ),
+        ],
+        vec![
+          (
+            "Do stuff".to_string(),
+            "This is you how you do that stuff".to_string(),
+          ),
+          (
+            "Do other stuff".to_string(),
+            "This is you how you do that other stuff".to_string(),
+          ),
+          (
+            "Do more stuff".to_string(),
+            "This is you how you do that stuff".to_string(),
+          ),
+        ],
+      ],
+    }
   }
 }

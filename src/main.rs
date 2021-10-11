@@ -31,3 +31,10 @@ fn show_workouts() -> Result<(), Box<dyn Error>> {
 
   Ok(())
 }
+
+fn show_default_workout() -> Result<(), Box<dyn Error>> {
+  let workout = Workout::default();
+
+  println!("{}", serde_yaml::to_string(&workout)?);
+  Ok(())
+}
