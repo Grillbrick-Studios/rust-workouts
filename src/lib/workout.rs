@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::{stdin, stdout, Write};
@@ -38,7 +37,7 @@ pub struct Workout {
   pub day: DayOfWeek,
   pub warmup_length: u64,
   pub workout_type: WorkoutType,
-  pub sets: Vec<HashMap<String, String>>,
+  pub sets: Vec<Vec<Vec<String>>>,
 }
 
 impl Workout {
@@ -48,34 +47,41 @@ impl Workout {
     link: Option<String>,
     day: DayOfWeek,
     workout_type: WorkoutType,
-    sets: Vec<Vec<(String, String)>>,
+    sets: Vec<Vec<Vec<String>>>,
   ) -> Self {
-    let mut hash_sets = vec![];
-
-    // break down the sets
-    for set in sets {
-      let mut hash = HashMap::new();
-      for (k, v) in set {
-        hash.insert(k, v);
-      }
-      hash_sets.push(hash);
-    }
-
     Workout {
       title: title.to_string(),
       link: if let Some(link) = link { link } else { "".to_string() },
       day,
       warmup_length: 60 * 5,
       workout_type,
-      sets: hash_sets,
+      sets,
     }
+    .compress()
+  }
+
+  fn compress(mut self) -> Self {
+    let mut sets = vec![];
+    for i in 0..self.sets.len() {
+      let mut set = vec![];
+      let old_set = &self.sets[i];
+      for old_exercise in old_set.iter() {
+        let (head, tail) = old_exercise.split_at(1);
+        let head = &head[0];
+        let exercise = vec![String::from(head), tail.join(" ")];
+        set.push(exercise);
+      }
+      sets.push(set);
+    }
+    self.sets = sets;
+    self
   }
 
   /// Load a single yaml file as a workout.
   pub fn load_file(filename: &str) -> Result<Self, Box<dyn Error>> {
     let f = File::open(filename)?;
-    let result = from_reader(f)?;
-    Ok(result)
+    let result: Workout = from_reader(f)?;
+    Ok(result.compress())
   }
 
   /// Load everything - currently manually updated.
@@ -184,7 +190,7 @@ impl Workout {
   }
 
   /// Iterates through a given set and displays to the screen
-  pub fn show_set(set: &HashMap<String, String>) -> String {
+  pub fn show_set(set: &[Vec<String>]) -> String {
     let mut result = String::new();
     for exercise in set.iter() {
       result += &Self::show_exercise(exercise);
@@ -193,22 +199,37 @@ impl Workout {
   }
 
   /// Show a single exercise
-  pub fn show_exercise(exercise: (&String, &String)) -> String {
-    let (exercise, description) = exercise;
-    format!(
-      "\n\
+  pub fn show_exercise(exercise: &[String]) -> String {
+    if let [exercise, description] = exercise {
+      format!(
+        "\n\
       {}{}{}{}\n\
       {}{}{}{}\n\
       \n",
-      cursor::Left(u16::MAX),
-      style::Bold,
-      color::Fg(color::Red),
-      exercise,
-      cursor::Left(u16::MAX),
-      style::Reset,
-      color::Fg(color::Reset),
-      description,
-    )
+        cursor::Left(u16::MAX),
+        style::Bold,
+        color::Fg(color::Red),
+        exercise,
+        cursor::Left(u16::MAX),
+        style::Reset,
+        color::Fg(color::Reset),
+        description,
+      )
+    } else {
+      format!(
+        "\n\
+        {}{}{}This Exercise is invalid - it does not have a title and description!{}{}\n\
+        {}{:#?}\n\
+        \n",
+        cursor::Left(u16::MAX),
+        style::Bold,
+        color::Fg(color::Red),
+        style::Reset,
+        color::Fg(color::Reset),
+        cursor::Left(u16::MAX),
+        exercise,
+      )
+    }
   }
 }
 
@@ -221,37 +242,46 @@ impl Default for Workout {
       WorkoutType::UpperBodyAbs,
       vec![
         vec![
-          ("Do stuff".to_string(), "This is how you do that stuff".to_string()),
-          (
+          vec![
+            "Do stuff".to_string(),
+            "This is how you do that stuff".to_string(),
+          ],
+          vec![
             "Do other stuff".to_string(),
             "This is how you do that other stuff".to_string(),
-          ),
-          (
+          ],
+          vec![
             "Do more stuff".to_string(),
             "This is how you do that stuff".to_string(),
-          ),
+          ],
         ],
         vec![
-          ("Do stuff".to_string(), "This is how you do that stuff".to_string()),
-          (
+          vec![
+            "Do stuff".to_string(),
+            "This is how you do that stuff".to_string(),
+          ],
+          vec![
             "Do other stuff".to_string(),
             "This is how you do that other stuff".to_string(),
-          ),
-          (
+          ],
+          vec![
             "Do more stuff".to_string(),
             "This is how you do that stuff".to_string(),
-          ),
+          ],
         ],
         vec![
-          ("Do stuff".to_string(), "This is how you do that stuff".to_string()),
-          (
+          vec![
+            "Do stuff".to_string(),
+            "This is how you do that stuff".to_string(),
+          ],
+          vec![
             "Do other stuff".to_string(),
             "This is how you do that other stuff".to_string(),
-          ),
-          (
+          ],
+          vec![
             "Do more stuff".to_string(),
             "This is how you do that stuff".to_string(),
-          ),
+          ],
         ],
       ],
     )
