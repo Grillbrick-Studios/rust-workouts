@@ -106,7 +106,7 @@ impl Workout {
     for i in 0..self.sets.len() {
       if let Some(set) = self.sets.get(i) {
         if i == 0 {
-          result.push(Screen::warmup_with_set(set));
+          result.push(Screen::warmup_with_set(set, self.warmup_length));
         }
         result.push(Screen::set_with_rest(set, i + 1));
       }

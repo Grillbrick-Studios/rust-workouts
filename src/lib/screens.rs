@@ -69,9 +69,9 @@ pub struct Screen {
 }
 
 impl Screen {
-  pub fn warmup_with_set(set: &HashMap<String, String>) -> Self {
+  pub fn warmup_with_set(set: &HashMap<String, String>, duration: u64) -> Self {
     let mut output = String::new();
-    let screen_type = ScreenType::warm_up();
+    let screen_type = ScreenType::WarmUp(Duration::from_secs(duration));
 
     let warmup = (&WARMUP.0.to_string(), &WARMUP.1.to_string());
 
