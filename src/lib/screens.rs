@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt;
+use std::time::Duration;
 
 use termion::{color, cursor};
 
@@ -29,10 +30,37 @@ const COOLDOWN: (&str, &str) = ("Cooldown", "Great Job!");
 
 /// The type of the screen used for timing
 pub enum ScreenType {
-  WarmUp,
-  Rest,
-  Exercise(usize),
-  Cooldown,
+  WarmUp(Duration),
+  Rest(Duration),
+  Exercise(usize, Duration),
+  Cooldown(Duration),
+}
+
+impl ScreenType {
+  pub fn warm_up() -> Self {
+    ScreenType::WarmUp(Duration::from_secs(60 * 5))
+  }
+
+  pub fn rest() -> Self {
+    ScreenType::Rest(Duration::from_secs(60))
+  }
+
+  pub fn exercise(id: usize) -> Self {
+    ScreenType::Exercise(id, Duration::from_secs(20))
+  }
+
+  pub fn cooldown() -> Self {
+    ScreenType::Cooldown(Duration::from_secs(60 * 10))
+  }
+
+  pub fn duration(&self) -> &Duration {
+    match self {
+      ScreenType::WarmUp(d) => d,
+      ScreenType::Rest(d) => d,
+      ScreenType::Exercise(_, d) => d,
+      ScreenType::Cooldown(d) => d,
+    }
+  }
 }
 
 pub struct Screen {
@@ -43,7 +71,7 @@ pub struct Screen {
 impl Screen {
   pub fn warmup_with_set(set: &HashMap<String, String>) -> Self {
     let mut output = String::new();
-    let screen_type = ScreenType::WarmUp;
+    let screen_type = ScreenType::warm_up();
 
     let warmup = (&WARMUP.0.to_string(), &WARMUP.1.to_string());
 
@@ -60,9 +88,9 @@ impl Screen {
     Screen { output, screen_type }
   }
 
-  pub fn set_with_rest(set: &HashMap<String, String>, set_num: usize) -> Self {
+  pub fn set_with_rest(set: &HashMap<String, String>, id: usize) -> Self {
     let mut output = String::new();
-    let screen_type = ScreenType::Exercise(set_num);
+    let screen_type = ScreenType::exercise(id);
 
     let rest = (&REST.0.to_string(), &REST.1.to_string());
 
@@ -79,12 +107,9 @@ impl Screen {
     Screen { output, screen_type }
   }
 
-  pub fn set_with_cooldown(
-    set: &HashMap<String, String>,
-    set_num: usize,
-  ) -> Self {
+  pub fn set_with_cooldown(set: &HashMap<String, String>, id: usize) -> Self {
     let mut output = String::new();
-    let screen_type = ScreenType::Exercise(set_num);
+    let screen_type = ScreenType::exercise(id);
 
     let cooldown = (&COOLDOWN.0.to_string(), &COOLDOWN.1.to_string());
 
@@ -103,7 +128,7 @@ impl Screen {
 
   pub fn cooldown() -> Self {
     let mut output = String::new();
-    let screen_type = ScreenType::Cooldown;
+    let screen_type = ScreenType::cooldown();
 
     let cooldown = (&COOLDOWN.0.to_string(), &COOLDOWN.1.to_string());
 
@@ -114,7 +139,7 @@ impl Screen {
 
   pub fn rest_with_set(set: &HashMap<String, String>) -> Self {
     let mut output = String::new();
-    let screen_type = ScreenType::Rest;
+    let screen_type = ScreenType::rest();
 
     let rest = (&REST.0.to_string(), &REST.1.to_string());
 
