@@ -1,10 +1,7 @@
 use std::collections::HashMap;
 use std::fmt;
-use std::fmt::{Display, Formatter};
 
-use termion::{
-  color, cursor, event::Key, input::TermRead, raw::IntoRawMode, style,
-};
+use termion::{color, cursor};
 
 use super::workout::Workout;
 
