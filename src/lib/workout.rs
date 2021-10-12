@@ -91,20 +91,13 @@ impl Workout {
   }
 
   pub fn duration(&self) -> Duration {
-    let mut seconds = self.warmup_length; // 5 minute warm-up.
+    let mut d = Duration::default();
 
-    self.sets.iter().for_each(|s| {
-      seconds +=
-        // Repeat 3 times
-        3 *
-          (s.iter().count() as u64
-            // 20 seconds per workout
-            * 20
-            // 60 seconds rest
-            + 60);
-    });
+    for screen in self.screens() {
+      d += *screen.screen_type.duration();
+    }
 
-    Duration::from_secs(seconds)
+    d
   }
 
   pub fn screens(&self) -> Vec<Screen> {
