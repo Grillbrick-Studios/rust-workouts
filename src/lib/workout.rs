@@ -12,6 +12,9 @@ use termion::{
 // use std::thread::sleep;
 use crate::lib::screens::{Screen, ScreenType};
 use crate::lib::util::clear_screen;
+use crate::lib::workout::locked_u_int::LockedUInt;
+
+mod locked_u_int;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum WorkoutType {
@@ -136,11 +139,11 @@ impl Workout {
     let mut stdout = stdout().into_raw_mode().unwrap();
 
     // Iterate through the sets.
-    let mut i = 0;
+    let mut i = LockedUInt { value: 0, max: screens.len() - 1 };
     loop {
       clear_screen();
       // get the current screen
-      let screen = screens.get(i).or(Some(&cooldown)).unwrap();
+      let screen = screens.get(i.value).or(Some(&cooldown)).unwrap();
 
       // show the screen
       write!(
@@ -170,7 +173,7 @@ impl Workout {
           // up and left will both go back one screen.
           Key::Up | Key::Left => {
             write!(stdout, "Going back...").unwrap();
-            i -= if i > 0 { 1 } else { 0 };
+            i -= 1;
             clear_screen();
             stdout.flush().unwrap();
             break;
@@ -178,7 +181,7 @@ impl Workout {
           // down and right will both go forward one screen.
           Key::Down | Key::Right => {
             write!(stdout, "Going forth...").unwrap();
-            i += if i < screens.len() { 1 } else { 0 };
+            i += 1;
             clear_screen();
             stdout.flush().unwrap();
             break;
