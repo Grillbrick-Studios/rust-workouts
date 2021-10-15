@@ -11,10 +11,13 @@ use termion::{
 
 // use std::thread::sleep;
 use crate::lib::screens::{Screen, ScreenType};
-use crate::lib::util::clear_screen;
+use crate::lib::util::{clear_screen, just_left};
 use crate::lib::workout::locked_u_int::LockedUInt;
+use crate::lib::workout::timer::Timer;
+use std::thread::sleep;
 
 mod locked_u_int;
+mod timer;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum WorkoutType {
@@ -131,24 +134,55 @@ impl Workout {
     let _current: u64 = 0;
     let _remaining = self.duration().as_secs();
 
-    // Get the screens
+    // Get the screens and times
     let screens = self.screens();
     let cooldown = Screen::cooldown();
+    // first get all the times for each screen
+    let times: Vec<u64> =
+      screens.iter().map(|s| s.screen_type.duration().as_secs()).collect();
+    // calculate total time
+    let total_time: u64 = times.iter().sum();
+    // Now modify to show the accumulated time for each screen
+    let times: Vec<u64> = times
+      .iter()
+      .scan(0, |state, x| {
+        *state += x;
+        Some(*state - x)
+      })
+      .collect();
 
     // Go into raw mode
     let mut stdout = stdout().into_raw_mode().unwrap();
 
     // Iterate through the sets.
     let mut i = LockedUInt { value: 0, max: screens.len() - 1 };
+    let mut current_time = 0;
     loop {
       clear_screen();
       // get the current screen
       let screen = screens.get(i.value).or(Some(&cooldown)).unwrap();
+      let time_elapsed = *times.get(i.value).unwrap();
+      let current_total = screen.screen_type.duration().as_secs();
+      let current_time_remaining = current_total - current_time;
+      let total_time_elapsed = time_elapsed + current_time;
+      let total_time_remaining = total_time - total_time_elapsed;
 
       // show the screen
       write!(
         stdout,
-        "{}{}{}\n{}",
+        "{}Total Elapsed: {}\n\
+        {}Total Remaining: {}\n\
+        {}Current Elapsed: {}\n\
+        {}Current Remaining: {}\n\
+        {}{}{}\n{}",
+        just_left(),
+        total_time_elapsed.as_time(),
+        just_left(),
+        total_time_remaining.as_time(),
+        just_left(),
+        current_time.as_time(),
+        just_left(),
+        current_time_remaining.as_time(),
         style::Bold,
         match screen.screen_type {
           ScreenType::WarmUp(_) => "WARMING UP!".to_string(),
@@ -172,21 +206,31 @@ impl Workout {
           Key::Char('q') => return,
           // up and left will both go back one screen.
           Key::Up | Key::Left => {
-            write!(stdout, "Going back...").unwrap();
             i -= 1;
+            current_time = 0;
             clear_screen();
             stdout.flush().unwrap();
             break;
           }
           // down and right will both go forward one screen.
           Key::Down | Key::Right => {
-            write!(stdout, "Going forth...").unwrap();
             i += 1;
+            current_time = 0;
             clear_screen();
             stdout.flush().unwrap();
             break;
           }
           _ => (),
+        }
+
+        // update timer.
+        sleep(Duration::from_secs(1));
+        current_time += 1;
+
+        // check if current timer is >= screen's duration and increment the screen if necessary.
+        if current_time >= current_total {
+          i += 1;
+          current_time = 0;
         }
       }
     }
