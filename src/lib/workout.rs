@@ -1,7 +1,11 @@
-use std::error::Error;
-use std::fs::File;
-use std::io::{stdin, stdout, Write};
-use std::time::Duration;
+use std::{
+  error::Error,
+  fs::File,
+  io::{stdin, stdout, Write},
+  sync::mpsc,
+  thread::{sleep, spawn},
+  time::Duration,
+};
 
 use serde::{Deserialize, Serialize};
 use serde_yaml::from_reader;
@@ -9,12 +13,10 @@ use termion::{
   color, cursor, event::Key, input::TermRead, raw::IntoRawMode, style,
 };
 
-// use std::thread::sleep;
 use crate::lib::screens::{Screen, ScreenType};
 use crate::lib::util::{clear_screen, just_left};
 use crate::lib::workout::locked_u_int::LockedUInt;
 use crate::lib::workout::timer::Timer;
-use std::thread::sleep;
 
 mod locked_u_int;
 mod timer;
@@ -118,9 +120,19 @@ impl Workout {
     for i in 0..self.sets.len() {
       if let Some(set) = self.sets.get(i) {
         if i == 0 {
-          result.push(Screen::warmup_with_set(set, self.warmup_length));
+          result.push(Screen::warmup_with_set(set, self.warmup_length * 60));
+        } else {
+          result.push(Screen::rest_with_set(set));
         }
         result.push(Screen::set_with_rest(set, i + 1));
+        result.push(Screen::rest_with_set(set));
+        result.push(Screen::set_with_rest(set, i + 1));
+        result.push(Screen::rest_with_set(set));
+        if i == self.sets.len() - 1 {
+          result.push(Screen::set_with_cooldown(set, i + 1));
+        } else {
+          result.push(Screen::set_with_rest(set, i + 1));
+        }
       }
     }
     result.push(Screen::cooldown());
@@ -154,7 +166,20 @@ impl Workout {
     // Go into raw mode
     let mut stdout = stdout().into_raw_mode().unwrap();
 
-    // Iterate through the sets.
+    // start thread and create channel
+    let (tx, rx) = mpsc::channel();
+
+    let _handle = spawn(move || {
+      // wait for input then clear the screen in preparation for the next set.
+      // Get stdin and lock it.
+      let stdin = stdin();
+      let keys = stdin.keys();
+      for key in keys {
+        tx.send(key.unwrap()).unwrap();
+      }
+    });
+
+    // Iterate through the screens.
     let mut i = LockedUInt { value: 0, max: screens.len() - 1 };
     let mut current_time = 0;
     loop {
@@ -196,21 +221,35 @@ impl Workout {
       .unwrap();
       stdout.flush().unwrap();
 
-      // wait for input then clear the screen in preparation for the next set.
-      // Get stdin and lock it.
-      let stdin = stdin();
-      let keys = stdin.keys();
-      for key in keys {
-        match key.unwrap() {
+      // update timer.
+      sleep(Duration::from_secs(1));
+      current_time += 1;
+
+      // check if current timer is >= screen's duration and increment the screen if necessary.
+      if current_time >= current_total {
+        i += 1;
+        current_time = 0;
+        // TODO: Play a sound to indicate progress.
+      }
+
+      if let Ok(key) = rx.try_recv() {
+        match key {
           // q - quits the program
-          Key::Char('q') => return,
+          Key::Char('q') => {
+            return;
+          }
           // up and left will both go back one screen.
           Key::Up | Key::Left => {
             i -= 1;
             current_time = 0;
             clear_screen();
             stdout.flush().unwrap();
-            break;
+          }
+          Key::Home => {
+            i.value = 0;
+            current_time = 0;
+            clear_screen();
+            stdout.flush().unwrap();
           }
           // down and right will both go forward one screen.
           Key::Down | Key::Right => {
@@ -218,19 +257,14 @@ impl Workout {
             current_time = 0;
             clear_screen();
             stdout.flush().unwrap();
-            break;
+          }
+          Key::End => {
+            i.value = i.max;
+            current_time = 0;
+            clear_screen();
+            stdout.flush().unwrap();
           }
           _ => (),
-        }
-
-        // update timer.
-        sleep(Duration::from_secs(1));
-        current_time += 1;
-
-        // check if current timer is >= screen's duration and increment the screen if necessary.
-        if current_time >= current_total {
-          i += 1;
-          current_time = 0;
         }
       }
     }
