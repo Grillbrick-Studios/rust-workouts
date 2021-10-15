@@ -124,14 +124,20 @@ impl Workout {
         } else {
           result.push(Screen::rest_with_set(set));
         }
-        result.push(Screen::set_with_rest(set, i + 1));
+        result.push(Screen::set_with_rest(set, 1));
+        result.push(Screen::set_with_rest(set, 2));
+        result.push(Screen::set_with_rest(set, 3));
         result.push(Screen::rest_with_set(set));
-        result.push(Screen::set_with_rest(set, i + 1));
+        result.push(Screen::set_with_rest(set, 1));
+        result.push(Screen::set_with_rest(set, 2));
+        result.push(Screen::set_with_rest(set, 3));
         result.push(Screen::rest_with_set(set));
+        result.push(Screen::set_with_rest(set, 1));
+        result.push(Screen::set_with_rest(set, 2));
         if i == self.sets.len() - 1 {
-          result.push(Screen::set_with_cooldown(set, i + 1));
+          result.push(Screen::set_with_cooldown(set, 3));
         } else {
-          result.push(Screen::set_with_rest(set, i + 1));
+          result.push(Screen::set_with_rest(set, 3));
         }
       }
     }
