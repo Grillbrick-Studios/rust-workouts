@@ -17,6 +17,7 @@ use crate::lib::screens::{Screen, ScreenType};
 use crate::lib::util::{clear_screen, just_left};
 use crate::lib::workout::locked_u_int::LockedUInt;
 use crate::lib::workout::timer::Timer;
+use std::ffi::OsStr;
 
 mod locked_u_int;
 mod timer;
@@ -87,7 +88,7 @@ impl Workout {
   }
 
   /// Load a single yaml file as a workout.
-  pub fn load_file(filename: &str) -> Result<Self, Box<dyn Error>> {
+  pub fn load_file(filename: &OsStr) -> Result<Self, Box<dyn Error>> {
     let f = File::open(filename)?;
     let result: Workout = from_reader(f)?;
     Ok(result.compress())
@@ -95,13 +96,17 @@ impl Workout {
 
   /// Load everything - currently manually updated.
   pub fn load_all() -> Result<Vec<Self>, Box<dyn Error>> {
-    // TODO: Make this automatically load .yml files in the data directory.
-    let workouts = vec![
-      Workout::load_file("data/3-1-LBA.yml")?,
-      Workout::load_file("data/3-2-UBA.yml")?,
-      Workout::load_file("data/3-3-LBA.yml")?,
-      Workout::load_file("data/3-4-UBA.yml")?,
-    ];
+    let mut paths = std::fs::read_dir("data")?
+      .map(|res| res.map(|e| e.path()))
+      .collect::<Result<Vec<_>, std::io::Error>>()?;
+    paths.sort();
+    let mut workouts = vec![];
+    for path in paths {
+      let s = path.as_os_str();
+      if let Ok(workout) = Workout::load_file(s) {
+        workouts.push(workout);
+      }
+    }
 
     Ok(workouts)
   }
