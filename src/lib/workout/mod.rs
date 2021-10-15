@@ -20,6 +20,7 @@ use crate::lib::workout::timer::Timer;
 
 mod locked_u_int;
 mod timer;
+pub mod workout_list;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum WorkoutType {
@@ -94,6 +95,7 @@ impl Workout {
 
   /// Load everything - currently manually updated.
   pub fn load_all() -> Result<Vec<Self>, Box<dyn Error>> {
+    // TODO: Make this automatically load .yml files in the data directory.
     let workouts = vec![
       Workout::load_file("data/3-1-LBA.yml")?,
       Workout::load_file("data/3-2-UBA.yml")?,
@@ -189,7 +191,6 @@ impl Workout {
     let mut i = LockedUInt { value: 0, max: screens.len() - 1 };
     let mut current_time = 0;
     loop {
-      clear_screen();
       // get the current screen
       let screen = screens.get(i.value).or(Some(&cooldown)).unwrap();
       let time_elapsed = *times.get(i.value).unwrap();
@@ -201,11 +202,12 @@ impl Workout {
       // show the screen
       write!(
         stdout,
-        "{}Total Elapsed: {}\n\
+        "{}{}Total Elapsed: {}\n\
         {}Total Remaining: {}\n\
         {}Current Elapsed: {}\n\
         {}Current Remaining: {}\n\
         {}{}{}\n{}",
+        clear_screen(),
         just_left(),
         total_time_elapsed.as_time(),
         just_left(),
@@ -248,26 +250,26 @@ impl Workout {
           Key::Up | Key::Left => {
             i -= 1;
             current_time = 0;
-            clear_screen();
+            write!(stdout, "{}", clear_screen()).unwrap();
             stdout.flush().unwrap();
           }
           Key::Home => {
             i.value = 0;
             current_time = 0;
-            clear_screen();
+            write!(stdout, "{}", clear_screen()).unwrap();
             stdout.flush().unwrap();
           }
           // down and right will both go forward one screen.
           Key::Down | Key::Right => {
             i += 1;
             current_time = 0;
-            clear_screen();
+            write!(stdout, "{}", clear_screen()).unwrap();
             stdout.flush().unwrap();
           }
           Key::End => {
             i.value = i.max;
             current_time = 0;
-            clear_screen();
+            write!(stdout, "{}", clear_screen()).unwrap();
             stdout.flush().unwrap();
           }
           _ => (),

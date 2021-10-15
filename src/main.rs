@@ -21,7 +21,7 @@ fn show_workouts() -> Result<(), Box<dyn Error>> {
     workouts.iter().map(|w| button(&w.title)).collect();
   list.insert(0, label("Please select a workout:"));
   let m = menu(list);
-  clear_screen();
+  print!("{}", clear_screen());
   run(&m);
 
   let title = mut_menu(&m).selected_item_name().to_owned();
