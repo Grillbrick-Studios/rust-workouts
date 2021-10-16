@@ -1,44 +1,31 @@
+use self::{
+  enums::{DayOfWeek, WorkoutType},
+  locked_u_int::LockedUInt,
+  timer::Timer,
+};
+use super::{
+  screens::{Screen, ScreenType},
+  util::{clear_screen, just_left},
+};
+use serde::{Deserialize, Serialize};
+use serde_yaml::from_reader;
 use std::{
   error::Error,
+  ffi::OsStr,
   fs::File,
   io::{stdin, stdout, Write},
   sync::mpsc,
   thread::{sleep, spawn},
   time::Duration,
 };
-
-use serde::{Deserialize, Serialize};
-use serde_yaml::from_reader;
 use termion::{
   color, cursor, event::Key, input::TermRead, raw::IntoRawMode, style,
 };
 
-use crate::lib::screens::{Screen, ScreenType};
-use crate::lib::util::{clear_screen, just_left};
-use crate::lib::workout::locked_u_int::LockedUInt;
-use crate::lib::workout::timer::Timer;
-use std::ffi::OsStr;
-
+pub mod enums;
 mod locked_u_int;
 mod timer;
 pub mod workout_list;
-
-#[derive(Serialize, Deserialize, Debug)]
-pub enum WorkoutType {
-  LowerBodyAbs,
-  UpperBodyAbs,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub enum DayOfWeek {
-  Monday,
-  Tuesday,
-  Wednesday,
-  Thursday,
-  Friday,
-  Saturday,
-  Sunday,
-}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Workout {

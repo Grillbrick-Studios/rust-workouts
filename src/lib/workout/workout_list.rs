@@ -1,7 +1,31 @@
-use super::Workout;
+use super::{
+  enums::{DayOfWeek, WorkoutType},
+  Workout,
+};
 
 pub trait WorkoutList {
-  // TODO: Implement sorting and parsing algorithms for a workout array here.
+  /// Filter by the day of the week
+  fn filter_by_day(&self, _day: &DayOfWeek) -> Vec<&Workout>;
+
+  /// Filter by the workout type
+  fn filter_by_type(&self, _type: &WorkoutType) -> Vec<&Workout>;
 }
 
-impl WorkoutList for Vec<Workout> {}
+impl WorkoutList for Vec<Workout> {
+  fn filter_by_day(&self, day: &DayOfWeek) -> Vec<&Workout> {
+    self.iter().filter(|w| w.day == *day).collect()
+  }
+
+  fn filter_by_type(&self, workout_type: &WorkoutType) -> Vec<&Workout> {
+    self.iter().filter(|w| w.workout_type == *workout_type).collect()
+  }
+}
+impl WorkoutList for &[Workout] {
+  fn filter_by_day(&self, day: &DayOfWeek) -> Vec<&Workout> {
+    self.iter().filter(|w| w.day == *day).collect()
+  }
+
+  fn filter_by_type(&self, workout_type: &WorkoutType) -> Vec<&Workout> {
+    self.iter().filter(|w| w.workout_type == *workout_type).collect()
+  }
+}
