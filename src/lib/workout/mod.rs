@@ -7,6 +7,7 @@ use super::{
   screens::{Screen, ScreenType},
   util::{clear_screen, just_left},
 };
+use rusty_audio::Audio;
 use serde::{Deserialize, Serialize};
 use serde_yaml::from_reader;
 use std::{
@@ -163,6 +164,12 @@ impl Workout {
       })
       .collect();
 
+    // initialize audio
+    let mut audio = Audio::new();
+    // audio.add("tick", Workout::TICK);
+    audio.add("bell", Workout::BELL);
+    audio.add("whistle", Workout::WHISTLE);
+
     // Go into raw mode
     let mut stdout = stdout().into_raw_mode().unwrap();
 
@@ -174,8 +181,10 @@ impl Workout {
       // Get stdin and lock it.
       let stdin = stdin();
       let keys = stdin.keys();
-      for key in keys {
-        tx.send(key.unwrap()).unwrap();
+      for key in keys.flatten() {
+        if tx.send(key).is_err() {
+          return;
+        }
       }
     });
 
@@ -190,6 +199,23 @@ impl Workout {
       let current_time_remaining = current_total - current_time;
       let total_time_elapsed = time_elapsed + current_time;
       let total_time_remaining = total_time - total_time_elapsed;
+
+      // check if a sound needs to be played.
+      if current_time_remaining == 7 {
+        // Error playing this file.
+        // play_sound(Workout::TICK);
+      }
+      if current_time == 0 {
+        match screen.screen_type {
+          ScreenType::Cooldown(_) | ScreenType::Rest(_) => {
+            audio.play("whistle");
+          }
+          ScreenType::Exercise(_, _) => {
+            audio.play("bell");
+          }
+          _ => {}
+        }
+      }
 
       // show the screen
       write!(
@@ -221,17 +247,6 @@ impl Workout {
       .unwrap();
       stdout.flush().unwrap();
 
-      // update timer.
-      sleep(Duration::from_secs(1));
-      current_time += 1;
-
-      // check if current timer is >= screen's duration and increment the screen if necessary.
-      if current_time >= current_total {
-        i += 1;
-        current_time = 0;
-        // TODO: Play a sound to indicate progress.
-      }
-
       if let Ok(key) = rx.try_recv() {
         match key {
           // q - quits the program
@@ -244,12 +259,14 @@ impl Workout {
             current_time = 0;
             write!(stdout, "{}", clear_screen()).unwrap();
             stdout.flush().unwrap();
+            continue;
           }
           Key::Home => {
             i.value = 0;
             current_time = 0;
             write!(stdout, "{}", clear_screen()).unwrap();
             stdout.flush().unwrap();
+            continue;
           }
           // down and right will both go forward one screen.
           Key::Down | Key::Right => {
@@ -257,15 +274,28 @@ impl Workout {
             current_time = 0;
             write!(stdout, "{}", clear_screen()).unwrap();
             stdout.flush().unwrap();
+            continue;
           }
           Key::End => {
             i.value = i.max;
             current_time = 0;
             write!(stdout, "{}", clear_screen()).unwrap();
             stdout.flush().unwrap();
+            continue;
           }
           _ => (),
         }
+      }
+
+      // update timer.
+      sleep(Duration::from_secs(1));
+      current_time += 1;
+
+      // check if current timer is >= screen's duration and increment the screen if necessary.
+      if current_time >= current_total {
+        i += 1;
+        current_time = 0;
+        continue;
       }
     }
   }
@@ -312,6 +342,10 @@ impl Workout {
       )
     }
   }
+
+  const TICK: &'static str = "sounds/tick.wav";
+  const BELL: &'static str = "sounds/bell.wav";
+  const WHISTLE: &'static str = "sounds/whistle.wav";
 }
 
 impl Default for Workout {
