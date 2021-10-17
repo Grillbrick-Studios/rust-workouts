@@ -166,7 +166,7 @@ impl Workout {
 
     // initialize audio
     let mut audio = Audio::new();
-    // audio.add("tick", Workout::TICK);
+    audio.add("tick", Workout::TICK);
     audio.add("bell", Workout::BELL);
     audio.add("whistle", Workout::WHISTLE);
 
@@ -203,7 +203,7 @@ impl Workout {
       // check if a sound needs to be played.
       if current_time_remaining == 7 {
         // Error playing this file.
-        // play_sound(Workout::TICK);
+        audio.play("tick");
       }
       if current_time == 0 {
         match screen.screen_type {
