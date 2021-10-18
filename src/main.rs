@@ -7,6 +7,7 @@ use lib::{
     Workout,
   },
 };
+use rand::prelude::SliceRandom;
 use std::process::exit;
 use std::{error::Error, str::FromStr};
 use terminal_menu::{button, label, menu, mut_menu, run, TerminalMenuItem};
@@ -21,6 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 const FILTER_BY_DAY: &str = "Filter by day of the week";
 const FILTER_BY_TYPE: &str = "Filter by workout type";
 const BACK: &str = "..";
+const RANDOM: &str = "random workout!";
 const QUIT: &str = "Quit";
 
 fn show_workouts() -> Result<(), Box<dyn Error>> {
@@ -47,6 +49,20 @@ fn show_workouts() -> Result<(), Box<dyn Error>> {
       workout.run();
     } else if title == BACK {
       filter = filter_menu(&result, &workouts);
+    } else if title == RANDOM {
+      if let Some(workout) =
+        if let Ok(filter) = DayOfWeek::from_str(filter.as_str()) {
+          let filtered = workouts.filter_by_day(&filter);
+          filtered.choose(&mut rand::thread_rng()).cloned()
+        } else if let Ok(filter) = WorkoutType::from_str(filter.as_str()) {
+          let filtered = workouts.filter_by_type(&filter);
+          filtered.choose(&mut rand::thread_rng()).cloned()
+        } else {
+          panic!("Invalid filter type");
+        }
+      {
+        workout.run();
+      }
     } else {
       break;
     }
@@ -98,6 +114,7 @@ fn workout_menu(filter: Filter, workouts: &[Workout]) -> String {
 
   list.insert(0, label("Choose a workout"));
   list.insert(1, button(BACK));
+  list.push(button(RANDOM));
   list.push(button(QUIT));
   show_menu(list)
 }
