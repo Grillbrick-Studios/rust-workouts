@@ -1,11 +1,12 @@
-use self::{
+use self::exercise::Exercise;
+use super::super::{
+  screens::{Screen, ScreenType},
+  util::{clear_screen, just_left},
+};
+use super::{
   enums::{DayOfWeek, WorkoutType},
   locked_u_int::LockedUInt,
   timer::Timer,
-};
-use super::{
-  screens::{Screen, ScreenType},
-  util::{clear_screen, just_left},
 };
 use rusty_audio::Audio;
 use serde::{Deserialize, Serialize};
@@ -23,32 +24,28 @@ use termion::{
   color, cursor, event::Key, input::TermRead, raw::IntoRawMode, style,
 };
 
-pub mod enums;
-mod locked_u_int;
-mod timer;
-pub mod workout_list;
-pub mod workout_plus;
+mod exercise;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Workout {
+pub struct WorkoutPlus {
   pub title: String,
   pub link: String,
   pub day: DayOfWeek,
   pub warmup_length: u64,
   pub workout_type: WorkoutType,
-  pub sets: Vec<Vec<Vec<String>>>,
+  pub sets: Vec<Vec<Exercise>>,
 }
 
-impl Workout {
+impl WorkoutPlus {
   /// new generates a default hashmap and then fills it with the provided workouts.
   pub fn new(
     title: &str,
     link: Option<String>,
     day: DayOfWeek,
     workout_type: WorkoutType,
-    sets: Vec<Vec<Vec<String>>>,
+    sets: Vec<Vec<Exercise>>,
   ) -> Self {
-    Workout {
+    WorkoutPlus {
       title: title.to_string(),
       link: if let Some(link) = link { link } else { "".to_string() },
       day,
@@ -56,31 +53,13 @@ impl Workout {
       workout_type,
       sets,
     }
-    .compress()
-  }
-
-  fn compress(mut self) -> Self {
-    let mut sets = vec![];
-    for i in 0..self.sets.len() {
-      let mut set = vec![];
-      let old_set = &self.sets[i];
-      for old_exercise in old_set.iter() {
-        let (head, tail) = old_exercise.split_at(1);
-        let head = &head[0];
-        let exercise = vec![String::from(head), tail.join(" ")];
-        set.push(exercise);
-      }
-      sets.push(set);
-    }
-    self.sets = sets;
-    self
   }
 
   /// Load a single yaml file as a workout.
   pub fn load_file(filename: &OsStr) -> Result<Self, Box<dyn Error>> {
     let f = File::open(filename)?;
-    let result: Workout = from_reader(f)?;
-    Ok(result.compress())
+    let result: WorkoutPlus = from_reader(f)?;
+    Ok(result)
   }
 
   /// Load everything - currently manually updated.
@@ -92,7 +71,7 @@ impl Workout {
     let mut workouts = vec![];
     for path in paths {
       let s = path.as_os_str();
-      if let Ok(workout) = Workout::load_file(s) {
+      if let Ok(workout) = WorkoutPlus::load_file(s) {
         workouts.push(workout);
       }
     }
@@ -111,35 +90,37 @@ impl Workout {
   }
 
   pub fn screens(&self) -> Vec<Screen> {
-    let mut result = vec![];
+    // let mut result = vec![];
 
-    for i in 0..self.sets.len() {
-      if let Some(set) = self.sets.get(i) {
-        if i == 0 {
-          result.push(Screen::warmup_with_set(set, self.warmup_length * 60));
-        } else {
-          result.push(Screen::rest_with_set(set));
-        }
-        result.push(Screen::set_with_rest(set, 1));
-        result.push(Screen::set_with_rest(set, 2));
-        result.push(Screen::set_with_rest(set, 3));
-        result.push(Screen::rest_with_set(set));
-        result.push(Screen::set_with_rest(set, 1));
-        result.push(Screen::set_with_rest(set, 2));
-        result.push(Screen::set_with_rest(set, 3));
-        result.push(Screen::rest_with_set(set));
-        result.push(Screen::set_with_rest(set, 1));
-        result.push(Screen::set_with_rest(set, 2));
-        if i == self.sets.len() - 1 {
-          result.push(Screen::set_with_cooldown(set, 3));
-        } else {
-          result.push(Screen::set_with_rest(set, 3));
-        }
-      }
-    }
-    result.push(Screen::cooldown());
+    // TODO: make this work with Exercises
+    // for i in 0..self.sets.len() {
+    //   if let Some(set) = self.sets.get(i) {
+    //     if i == 0 {
+    //       result.push(Screen::warmup_with_set(set, self.warmup_length * 60));
+    //     } else {
+    //       result.push(Screen::rest_with_set(set));
+    //     }
+    //     result.push(Screen::set_with_rest(set, 1));
+    //     result.push(Screen::set_with_rest(set, 2));
+    //     result.push(Screen::set_with_rest(set, 3));
+    //     result.push(Screen::rest_with_set(set));
+    //     result.push(Screen::set_with_rest(set, 1));
+    //     result.push(Screen::set_with_rest(set, 2));
+    //     result.push(Screen::set_with_rest(set, 3));
+    //     result.push(Screen::rest_with_set(set));
+    //     result.push(Screen::set_with_rest(set, 1));
+    //     result.push(Screen::set_with_rest(set, 2));
+    //     if i == self.sets.len() - 1 {
+    //       result.push(Screen::set_with_cooldown(set, 3));
+    //     } else {
+    //       result.push(Screen::set_with_rest(set, 3));
+    //     }
+    //   }
+    // }
+    // result.push(Screen::cooldown());
 
-    result
+    // result
+    vec![]
   }
 
   pub fn run(&self) {
@@ -167,9 +148,9 @@ impl Workout {
 
     // initialize audio
     let mut audio = Audio::new();
-    audio.add("tick", Workout::TICK);
-    audio.add("bell", Workout::BELL);
-    audio.add("whistle", Workout::WHISTLE);
+    audio.add("tick", WorkoutPlus::TICK);
+    audio.add("bell", WorkoutPlus::BELL);
+    audio.add("whistle", WorkoutPlus::WHISTLE);
 
     // Go into raw mode
     let mut stdout = stdout().into_raw_mode().unwrap();
@@ -364,55 +345,37 @@ impl Workout {
   const WHISTLE: &'static str = "sounds/whistle.wav";
 }
 
-impl Default for Workout {
+impl Default for WorkoutPlus {
   fn default() -> Self {
-    Workout::new(
+    WorkoutPlus::new(
       "Default Workout",
       None,
       DayOfWeek::Monday,
       WorkoutType::UpperBodyAbs,
       vec![
         vec![
-          vec![
-            "Do stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
-          vec![
-            "Do other stuff".to_string(),
-            "This is how you do that other stuff".to_string(),
-          ],
-          vec![
-            "Do more stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
+          Exercise::new("Do stuff", "This is how you do that stuff"),
+          Exercise::new(
+            "Do other stuff",
+            "This is how you do that other stuff",
+          ),
+          Exercise::new("Do more stuff", "This is how you do that stuff"),
         ],
         vec![
-          vec![
-            "Do stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
-          vec![
-            "Do other stuff".to_string(),
-            "This is how you do that other stuff".to_string(),
-          ],
-          vec![
-            "Do more stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
+          Exercise::new("Do stuff", "This is how you do that stuff"),
+          Exercise::new(
+            "Do other stuff",
+            "This is how you do that other stuff",
+          ),
+          Exercise::new("Do more stuff", "This is how you do that stuff"),
         ],
         vec![
-          vec![
-            "Do stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
-          vec![
-            "Do other stuff".to_string(),
-            "This is how you do that other stuff".to_string(),
-          ],
-          vec![
-            "Do more stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
+          Exercise::new("Do stuff", "This is how you do that stuff"),
+          Exercise::new(
+            "Do other stuff",
+            "This is how you do that other stuff",
+          ),
+          Exercise::new("Do more stuff", "This is how you do that stuff"),
         ],
       ],
     )
