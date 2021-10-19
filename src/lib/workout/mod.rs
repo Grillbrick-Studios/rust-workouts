@@ -191,14 +191,25 @@ impl Workout {
     // Iterate through the screens.
     let mut i = LockedUInt { value: 0, max: screens.len() - 1 };
     let mut current_time = 0;
+    let mut overtime = false;
     loop {
       // get the current screen
       let screen = screens.get(i.value).or(Some(&cooldown)).unwrap();
       let time_elapsed = *times.get(i.value).unwrap();
       let current_total = screen.screen_type.duration().as_secs();
-      let current_time_remaining = current_total - current_time;
+      let current_time_remaining = if current_time > current_total {
+        overtime = true;
+        0
+      } else {
+        current_total - current_time
+      };
       let total_time_elapsed = time_elapsed + current_time;
-      let total_time_remaining = total_time - total_time_elapsed;
+      let total_time_remaining = if total_time_elapsed > total_time {
+        overtime = true;
+        0
+      } else {
+        total_time - total_time_elapsed
+      };
 
       // check if a sound needs to be played.
       if current_time_remaining == 7 && i.value < i.max {
@@ -216,6 +227,9 @@ impl Workout {
         }
       }
 
+      let current_time_remaining = current_time_remaining.as_time();
+      let total_time_remaining = total_time_remaining.as_time();
+
       // show the screen
       write!(
         stdout,
@@ -228,11 +242,11 @@ impl Workout {
         just_left(),
         total_time_elapsed.as_time(),
         just_left(),
-        total_time_remaining.as_time(),
+        if overtime { "OVERTIME!" } else { total_time_remaining.as_str() },
         just_left(),
         current_time.as_time(),
         just_left(),
-        current_time_remaining.as_time(),
+        if overtime { "OVERTIME!" } else { current_time_remaining.as_str() },
         style::Bold,
         match screen.screen_type {
           ScreenType::WarmUp(_) => "WARMING UP!".to_string(),
