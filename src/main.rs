@@ -1,11 +1,8 @@
-use crate::lib::workout::enums::Filter;
 use lib::{
+  enums::{DayOfWeek, Filter, WorkoutType},
   util::clear_screen,
-  workout::{
-    enums::{DayOfWeek, WorkoutType},
-    workout_list::WorkoutList,
-    Workout,
-  },
+  workout::Workout,
+  workout_plus::{workout_list::WorkoutList, WorkoutPlus},
 };
 use rand::prelude::SliceRandom;
 use std::process::exit;
@@ -77,7 +74,7 @@ fn main_menu() -> String {
   show_menu(list)
 }
 
-fn filter_menu(result: &str, workouts: &[Workout]) -> String {
+fn filter_menu(result: &str, workouts: &[WorkoutPlus]) -> String {
   let mut list: Vec<TerminalMenuItem> = match result {
     FILTER_BY_TYPE => WorkoutType::VALUES
       .iter()
@@ -100,7 +97,7 @@ fn filter_menu(result: &str, workouts: &[Workout]) -> String {
   show_menu(list)
 }
 
-fn workout_menu(filter: Filter, workouts: &[Workout]) -> String {
+fn workout_menu(filter: Filter, workouts: &[WorkoutPlus]) -> String {
   let mut list: Vec<TerminalMenuItem> = match filter {
     Filter::DayOfWeek(filter) => {
       workouts.filter_by_day(&filter).iter().map(|w| button(&w.title)).collect()

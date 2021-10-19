@@ -3,29 +3,32 @@ use std::time::Duration;
 
 use termion::{color, cursor};
 
-use super::workout::Workout;
+use super::workout_plus::exercise::{Exercise, ExerciseSet};
 
 /// [WARMUP] is a constant exercise that is shown during the warmup period.
-const WARMUP: [&str; 2] = [
-  "Warmup",
-  "Run in place, \
+const WARMUP: Exercise = Exercise {
+  name: "Warmup",
+  description: "Run in place, \
 jumping-jacks, or anything \
     to get \
     your \
     heart rate up.",
-];
+  selected: false,
+};
 
 /// [REST] is a constant exercise that is shown in between each set of exercises.
-const REST: [&str; 2] = [
-  "REST",
-  "Take a break, \
+const REST: Exercise = Exercise {
+  name: "REST",
+  description: "Take a break, \
   Get a drink of water, \
   Take it easy!",
-];
+  selected: false,
+};
 
 /// [COOLDOWN] is a constant exercise that is shown at the end of the workout until the program
 /// exits.
-const COOLDOWN: [&str; 2] = ["Cooldown", "Great Job!"];
+const COOLDOWN: Exercise =
+  Exercise { name: "Cooldown", description: "Great Job!", selected: false };
 
 /// The type of the screen used for timing
 pub enum ScreenType {
@@ -68,13 +71,11 @@ pub struct Screen {
 }
 
 impl Screen {
-  pub fn warmup_with_set(set: &[Vec<String>], duration: u64) -> Self {
+  pub fn warmup_with_set(set: &ExerciseSet, duration: u64) -> Self {
     let mut output = String::new();
     let screen_type = ScreenType::WarmUp(Duration::from_secs(duration));
 
-    let warmup = [WARMUP[0].to_string(), WARMUP[1].to_string()];
-
-    output += &Workout::show_exercise(&warmup);
+    output += WARMUP.to_string().as_str();
     output += format!(
       "{}{}UP NEXT:{}",
       cursor::Left(u16::MAX),
@@ -82,18 +83,16 @@ impl Screen {
       color::Fg(color::Reset)
     )
     .as_str();
-    output += &Workout::show_set(set);
+    output += set.to_string().as_str();
 
     Screen { output, screen_type }
   }
 
-  pub fn set_with_rest(set: &[Vec<String>], id: usize) -> Self {
+  pub fn set_with_rest(set: &ExerciseSet, id: usize) -> Self {
     let mut output = String::new();
     let screen_type = ScreenType::exercise(id);
 
-    let rest = [REST[0].to_string(), REST[1].to_string()];
-
-    output += &Workout::show_set(set);
+    output += set.to_string().as_str();
     output += format!(
       "{}{}UP NEXT:{}",
       cursor::Left(u16::MAX),
@@ -101,18 +100,16 @@ impl Screen {
       color::Fg(color::Reset)
     )
     .as_str();
-    output += &Workout::show_exercise(&rest);
+    output += REST.to_string().as_str();
 
     Screen { output, screen_type }
   }
 
-  pub fn set_with_cooldown(set: &[Vec<String>], id: usize) -> Self {
+  pub fn set_with_cooldown(set: &ExerciseSet, id: usize) -> Self {
     let mut output = String::new();
     let screen_type = ScreenType::exercise(id);
 
-    let cooldown = [COOLDOWN[0].to_string(), COOLDOWN[1].to_string()];
-
-    output += &Workout::show_set(set);
+    output += set.to_string().as_str();
     output += format!(
       "{}{}UP NEXT:{}",
       cursor::Left(u16::MAX),
@@ -120,7 +117,7 @@ impl Screen {
       color::Fg(color::Reset)
     )
     .as_str();
-    output += &Workout::show_exercise(&cooldown);
+    output += COOLDOWN.to_string().as_str();
 
     Screen { output, screen_type }
   }
@@ -129,20 +126,16 @@ impl Screen {
     let mut output = String::new();
     let screen_type = ScreenType::cooldown();
 
-    let cooldown = [COOLDOWN[0].to_string(), COOLDOWN[1].to_string()];
-
-    output += &Workout::show_exercise(&cooldown);
+    output += COOLDOWN.to_string().as_str();
 
     Screen { output, screen_type }
   }
 
-  pub fn rest_with_set(set: &[Vec<String>]) -> Self {
+  pub fn rest_with_set(set: &ExerciseSet) -> Self {
     let mut output = String::new();
     let screen_type = ScreenType::rest();
 
-    let rest = [REST[0].to_string(), REST[1].to_string()];
-
-    output += &Workout::show_exercise(&rest);
+    output += REST.to_string().as_str();
     output += format!(
       "{}{}UP NEXT:{}",
       cursor::Left(u16::MAX),
@@ -150,7 +143,7 @@ impl Screen {
       color::Fg(color::Reset)
     )
     .as_str();
-    output += &Workout::show_set(set);
+    output += set.to_string().as_str();
 
     Screen { output, screen_type }
   }
