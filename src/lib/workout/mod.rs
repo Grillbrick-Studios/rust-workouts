@@ -201,8 +201,7 @@ impl Workout {
       let total_time_remaining = total_time - total_time_elapsed;
 
       // check if a sound needs to be played.
-      if current_time_remaining == 7 {
-        // Error playing this file.
+      if current_time_remaining == 7 && i.value < i.max {
         audio.play("tick");
       }
       if current_time == 0 {
@@ -270,11 +269,13 @@ impl Workout {
           }
           // down and right will both go forward one screen.
           Key::Down | Key::Right => {
-            i += 1;
-            current_time = 0;
-            write!(stdout, "{}", clear_screen()).unwrap();
-            stdout.flush().unwrap();
-            continue;
+            if i.value < i.max {
+              i += 1;
+              current_time = 0;
+              write!(stdout, "{}", clear_screen()).unwrap();
+              stdout.flush().unwrap();
+              continue;
+            }
           }
           Key::End => {
             i.value = i.max;
@@ -292,7 +293,7 @@ impl Workout {
       current_time += 1;
 
       // check if current timer is >= screen's duration and increment the screen if necessary.
-      if current_time >= current_total {
+      if current_time >= current_total && i.value < i.max {
         i += 1;
         current_time = 0;
         continue;
