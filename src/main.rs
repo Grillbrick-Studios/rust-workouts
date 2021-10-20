@@ -1,3 +1,4 @@
+use crate::lib::workout::WorkoutImport;
 use lib::{
   enums::*,
   util::clear_screen,
@@ -5,6 +6,7 @@ use lib::{
 };
 use rand::prelude::SliceRandom;
 use std::error::Error;
+use std::io::{Read, Write};
 use std::process::exit;
 use std::str::FromStr;
 use terminal_menu::{button, label, menu, mut_menu, run, TerminalMenuItem};
@@ -12,6 +14,7 @@ use terminal_menu::{button, label, menu, mut_menu, run, TerminalMenuItem};
 pub mod lib;
 
 fn main() -> Result<(), Box<dyn Error>> {
+  import_workouts()?;
   show_workouts()?;
   Ok(())
 }
@@ -21,6 +24,38 @@ const FILTER_BY_TYPE: &str = "Filter by workout type";
 const BACK: &str = "..";
 const RANDOM: &str = "Random Workout!";
 const QUIT: &str = "Quit";
+
+fn pause() -> Result<(), Box<dyn Error>> {
+  use std::io::{self, prelude};
+  let mut stdin = io::stdin();
+  let mut stdout = io::stdout();
+
+  write!(stdout, "Press Enter key to continue...")?;
+  stdout.flush()?;
+
+  stdin.read_exact(&mut [0u8])?;
+
+  Ok(())
+}
+
+fn import_workouts() -> Result<(), Box<dyn Error>> {
+  println!("Checking for imports...");
+  let workouts = WorkoutImport::load_all()?;
+
+  if workouts.is_empty() {
+    println!("None found.")
+  } else {
+    println!("Saving imports...");
+    for workout in workouts.into_iter() {
+      workout.upgrade().save()?;
+    }
+    println!("Imports saved!");
+  }
+
+  pause()?;
+
+  Ok(())
+}
 
 fn show_workouts() -> Result<(), Box<dyn Error>> {
   // first load the workouts

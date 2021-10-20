@@ -22,7 +22,6 @@ use termion::{event::Key, input::TermRead, raw::IntoRawMode, style};
 pub mod exercise;
 pub mod workout_list;
 
-const BACKUP_DIR: &str = "backup";
 const DATA_DIR: &str = "data";
 const IMPORT_DIR: &str = "import";
 
@@ -155,9 +154,9 @@ impl Workout {
 
   pub fn save(&self) -> Result<(), Box<dyn Error>> {
     if std::fs::read_dir(DATA_DIR).is_err() {
-      std::fs::create_dir(BACKUP_DIR)?;
+      std::fs::create_dir(DATA_DIR)?;
     }
-    let path = format!("data2/{}.yml", self.title);
+    let path = format!("{}/{}.yml", DATA_DIR, self.title);
     let f = File::create(path)?;
     to_writer(f, &self)?;
     Ok(())

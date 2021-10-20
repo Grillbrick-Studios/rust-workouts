@@ -1,0 +1,57 @@
+### This is an example workout that can be imported to the program all fields
+### are required.
+
+### This is the title of the workout and must be unique. If you add a workout
+### that already exists it will be overwritten.
+#title: Workout 1.1 Lower Body and Abs
+
+### This is the day of the week that the workout should be done. Any weekday
+### can be used.
+#day: Monday
+
+### This is a link to a video or other resource that may have more info.
+### Even if there is no link the file must have an empty link: tag.
+#link: https://vshred.com/workout/fat-loss-extreme-home/1?ref=workout%2Ffat-loss-extreme-home%2F
+
+### The type of workout - currently must be either LowerBodyAbs, or UpperBodyAbs
+#workout_type: LowerBodyAbs
+
+### How long should the warmup be (in minutes)?
+#warmup_length: 5
+
+### This is where the actual info goes.
+### You can have as many sets as you like, but each set can only have 3
+### exercises.
+#sets:
+
+### Three dashes(-) indicate the beginning of a set and the first exercise.
+#  - - - Body Weight Squats
+
+### A single dash indicates a description - you can extend this as much as
+### you want - just keep a single dash and they will be joined together with a
+### ' '(space) character.
+#      - ...
+
+### Two dashes indicate another exercise in the set - There must be exactly 3
+### exercises total. So this is 2...
+#    - - Glut Bridge Marches
+#      - Sit-up position - Marching with your feet.
+### And this is 3!
+#    - - Ab Bicycles
+#      - ...
+
+### Three dashes(-) indicate the beginning of a set and the first exercise.
+#  - - - Squat Pulses
+#      - ...
+#    - - Body Weight Glute Bridges
+#      - Sit-up position - thrust hips upward.
+#    - - Star Crunches
+#      - Like pike ups.
+
+### Three dashes(-) indicate the beginning of a set and the first exercise.
+#  - - - Sumo Squat Pulses
+#      - ...
+#    - - Running in Place
+#      - ...
+#    - - Rotating Mountain Climber
+#      - Push-up position - Kneeing to each side.
