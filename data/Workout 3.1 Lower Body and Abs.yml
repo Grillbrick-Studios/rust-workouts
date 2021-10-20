@@ -1,0 +1,40 @@
+---
+title: Workout 3.1 Lower Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/57?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Monday
+warmup_length: 5
+workout_type: LowerBodyAbs
+sets:
+  - exercises:
+      - name: Sumo Squat Pulses
+        description: "..."
+        selected: false
+      - name: Single-Leg Deadlift Hops
+        description: Bend over and touch the ground while reaching your leg back - then shoot the leg forward and up kneeing the air and repeat with the other leg.
+        selected: false
+      - name: Tuck-Jumps
+        description: "..."
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Skater Squats
+        description: Squat on one leg while pretending to skate.
+        selected: false
+      - name: Running in Place
+        description: "..."
+        selected: false
+      - name: Floor Wipers
+        description: "Lay on your back with your legs up. Pretend your legs are windshield wipers. Don't let your legs touch the ground."
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Three-Point Squats
+        description: "Squats in a circle - Each leg goes forward, to the side, and to the rear."
+        selected: false
+      - name: Jump Squat
+        description: Squat and Jump...
+        selected: false
+      - name: Alternating Split-Squats
+        description: Reach back with alternating legs and squat to touch your ankle.
+        selected: false
+    exercise_type: LowerBodyAbs

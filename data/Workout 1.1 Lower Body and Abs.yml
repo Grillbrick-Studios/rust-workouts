@@ -1,0 +1,40 @@
+---
+title: Workout 1.1 Lower Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/1?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Monday
+warmup_length: 5
+workout_type: LowerBodyAbs
+sets:
+  - exercises:
+      - name: Body Weight Squats
+        description: "..."
+        selected: false
+      - name: Glut Bridge Marches
+        description: Sit-up position - Marching with your feet.
+        selected: false
+      - name: Ab Bicycles
+        description: "..."
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Squat Pulses
+        description: "..."
+        selected: false
+      - name: Body Weight Glute Bridges
+        description: Sit-up position - thrust hips upward.
+        selected: false
+      - name: Star Crunches
+        description: Like pike ups.
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Sumo Squat Pulses
+        description: "..."
+        selected: false
+      - name: Running in Place
+        description: "..."
+        selected: false
+      - name: Rotating Mountain Climber
+        description: Push-up position - Kneeing to each side.
+        selected: false
+    exercise_type: LowerBodyAbs

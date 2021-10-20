@@ -1,0 +1,40 @@
+---
+title: Workout 3.4 Upper Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/61?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Friday
+warmup_length: 5
+workout_type: UpperBodyAbs
+sets:
+  - exercises:
+      - name: Knee tap push-ups
+        description: Push-ups taping knees with opposite hands. Alternating each time.
+        selected: false
+      - name: Lying back press
+        description: Crunches - but using your elbows to push your body up.
+        selected: false
+      - name: Plank arm and leg lifts
+        description: Start in a plank and lift opposite arm and leg. Alternating each time.
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Kick-through to Downward-Dog
+        description: Downward dog - Kneeing forward to push-up position with alternating knees.
+        selected: false
+      - name: Walk-out push-ups
+        description: Push-up - walk your hands back to your feet and then walk back out.
+        selected: false
+      - name: Alternating Side-Plank Holds
+        description: Push-up position - Kick your foot through to the other side and reach up - alternating.
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Standing T-Raise
+        description: Stand up bend at the waist and lift arms to the side. Flex and hold.
+        selected: false
+      - name: Alternating Jump with Reach
+        description: Push-up position - One leg lifted jump from side to side three times then reach up with opposite arm.
+        selected: false
+      - name: RKC Plank
+        description: Plank - Flexing everything and pushing elbows toward your feet - tight abs.
+        selected: false
+    exercise_type: UpperBodyAbs

@@ -1,0 +1,40 @@
+---
+title: Workout 2.2 Upper Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/30?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Tuesday
+warmup_length: 5
+workout_type: UpperBodyAbs
+sets:
+  - exercises:
+      - name: Plank Up-Downs
+        description: "..."
+        selected: false
+      - name: Reverse Snow Angels
+        description: "..."
+        selected: false
+      - name: RKC Plank
+        description: Flex Abs & Arms - Push elbowes toward your feet.
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Dive Bomber Push-ups
+        description: Dolphin push-ups like you are rubbing your back with an invisible U.
+        selected: false
+      - name: Contralateral Supermans
+        description: "..."
+        selected: false
+      - name: Floor Wipers
+        description: "..."
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Eccentric Push-ups
+        description: Slowly down then pop up.
+        selected: false
+      - name: Supermans
+        description: "..."
+        selected: false
+      - name: Advanced Planks
+        description: Push-up position - Bend at the lower back tighten your abs.
+        selected: false
+    exercise_type: UpperBodyAbs

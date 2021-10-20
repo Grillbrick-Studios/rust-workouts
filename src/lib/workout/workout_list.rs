@@ -1,5 +1,5 @@
 use super::{
-  super::enums::{DayOfWeek, WorkoutType},
+  super::enums::{DayOfWeek, ExerciseType},
   Workout,
 };
 
@@ -8,7 +8,7 @@ pub trait WorkoutList {
   fn filter_by_day(&self, _day: &DayOfWeek) -> Vec<&Workout>;
 
   /// Filter by the workout type
-  fn filter_by_type(&self, _type: &WorkoutType) -> Vec<&Workout>;
+  fn filter_by_type(&self, _type: &ExerciseType) -> Vec<&Workout>;
 }
 
 impl WorkoutList for Vec<Workout> {
@@ -16,7 +16,7 @@ impl WorkoutList for Vec<Workout> {
     self.iter().filter(|w| w.day == *day).collect()
   }
 
-  fn filter_by_type(&self, workout_type: &WorkoutType) -> Vec<&Workout> {
+  fn filter_by_type(&self, workout_type: &ExerciseType) -> Vec<&Workout> {
     self.iter().filter(|w| w.workout_type == *workout_type).collect()
   }
 }
@@ -25,7 +25,7 @@ impl WorkoutList for &[Workout] {
     self.iter().filter(|w| w.day == *day).collect()
   }
 
-  fn filter_by_type(&self, workout_type: &WorkoutType) -> Vec<&Workout> {
+  fn filter_by_type(&self, workout_type: &ExerciseType) -> Vec<&Workout> {
     self.iter().filter(|w| w.workout_type == *workout_type).collect()
   }
 }

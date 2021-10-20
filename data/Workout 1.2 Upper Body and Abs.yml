@@ -1,0 +1,40 @@
+---
+title: Workout 1.2 Upper Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/2?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Tuesday
+warmup_length: 5
+workout_type: UpperBodyAbs
+sets:
+  - exercises:
+      - name: Scapular Push-ups
+        description: Pushups with only the shoulders
+        selected: false
+      - name: Pulse Rows
+        description: Lay flat on your stomach with hands at your sides and repeatedly reach back like you are being arrested.
+        selected: false
+      - name: Mountain Climbers
+        description: "..."
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Diamond Push-ups
+        description: "..."
+        selected: false
+      - name: Reverse Snow Angels
+        description: "..."
+        selected: false
+      - name: Toe Touches
+        description: Lay on back with legs up in the air and reach up to touch your toes
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Side Kick-throughs
+        description: From Downward Dog kick your leg through to the other side and back. Bringing hand up to head.
+        selected: false
+      - name: Downward Dog Leg Lifts
+        description: From Downward Dog lift your leg up like you are a kicking mule.
+        selected: false
+      - name: Roll-over crunches
+        description: Sit-up position - roll your hands over your knees.
+        selected: false
+    exercise_type: UpperBodyAbs

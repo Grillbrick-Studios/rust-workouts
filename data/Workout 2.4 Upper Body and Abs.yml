@@ -1,0 +1,40 @@
+---
+title: Workout 2.4 Upper Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/33?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Friday
+warmup_length: 5
+workout_type: UpperBodyAbs
+sets:
+  - exercises:
+      - name: In & Out Push-ups
+        description: Wide arm Push-ups poping in at the top.
+        selected: false
+      - name: Floor Y-Raises
+        description: "..."
+        selected: false
+      - name: Sprinter Sit-ups
+        description: Lay on your back and crunch like you are sprinting upward.
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Triceps Stop Push-ups
+        description: Tight elbows.
+        selected: false
+      - name: Lying Back Press
+        description: Crunches using your elbows to push yourself up
+        selected: false
+      - name: Scapular Push-ups to Dolphin
+        description: Push-up with shoulders then arch your back into an advanced plank
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Bodyweight Good Morning Holds
+        description: Stand and Bow - holding your abs and upper body tight
+        selected: false
+      - name: Crab Toe Touches
+        description: Crab position touching oposing hand and toes together.
+        selected: false
+      - name: Plank Hip Drops
+        description: Plank position on your elbows rocking your hips from side to side.
+        selected: false
+    exercise_type: UpperBodyAbs

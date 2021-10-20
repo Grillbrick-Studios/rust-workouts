@@ -1,0 +1,40 @@
+---
+title: Workout 1.4 Upper Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/5?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Friday
+warmup_length: 5
+workout_type: UpperBodyAbs
+sets:
+  - exercises:
+      - name: Quadraped Press
+        description: Start in Push-up position then back on your heels.
+        selected: false
+      - name: Contralateral Supermans
+        description: Supermans with oposite arms and legs
+        selected: false
+      - name: Ab Walkout
+        description: Walk out with your hands while on your knees.
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Inch-Worm to Pike Push-up
+        description: Walk out with your hands and do a pike push-up
+        selected: false
+      - name: Floor T-Raise
+        description: "flat on your stomach, reach your arms out in a T position and lift them up."
+        selected: false
+      - name: Russian Twist
+        description: Sit-up position - lift your legs up about an inch and twist your upper body from side to side.
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Trices Stop Push-ups
+        description: "Push-ups, holding your elbows in close and stopping halfway up and down."
+        selected: false
+      - name: Floor Y-Raises
+        description: "flat on your stomach, reach your arms out in a Y position and lift them up."
+        selected: false
+      - name: Plank Up Downs
+        description: "..."
+        selected: false
+    exercise_type: UpperBodyAbs

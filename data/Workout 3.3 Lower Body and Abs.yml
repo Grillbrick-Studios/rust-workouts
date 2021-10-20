@@ -1,0 +1,40 @@
+---
+title: Workout 3.3 Lower Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/60?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Thursday
+warmup_length: 5
+workout_type: LowerBodyAbs
+sets:
+  - exercises:
+      - name: Alternating Split Squats
+        description: Reach back with alternating legs and squat to touch your ankle.
+        selected: false
+      - name: Body-weight Curtsy Lunge
+        description: Standing curtsy to far left/right.
+        selected: false
+      - name: Ab bicycles
+        description: Self explanatory supine bicycle.
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Side-lunge to tuck-jump
+        description: Lunge to each side and jump between each - bringing your knees up to your hands.
+        selected: false
+      - name: Squat-Hold Step-Backs
+        description: Hold a squat stepping back three times with each foot.
+        selected: false
+      - name: Single-Leg Alternating Jackknives
+        description: Jackknife up with alternating legs.
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Reverse Lunges
+        description: Self explanatory - lunge backwards.
+        selected: false
+      - name: Speed Skates
+        description: Self explanatory - jump side to side pretending to skate.
+        selected: false
+      - name: Oblique Pulse-ups
+        description: "Lay on your back, stick your feet in the air and stab the ceiling with extreme prejudice (twisting with your obliques)."
+        selected: false
+    exercise_type: LowerBodyAbs

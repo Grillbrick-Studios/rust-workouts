@@ -1,13 +1,13 @@
+use self::exercise::{Exercise, ExerciseSet};
 use super::{
-  enums::{DayOfWeek, WorkoutType},
-  locked_u_int::LockedUInt,
-  screens::{Screen, ScreenType},
+  enums::{DayOfWeek, ExerciseType},
+  screen::{Screen, ScreenType},
   timer::Timer,
   util::{clear_screen, just_left},
 };
 use rusty_audio::Audio;
 use serde::{Deserialize, Serialize};
-use serde_yaml::from_reader;
+use serde_yaml::{from_reader, to_writer};
 use std::{
   error::Error,
   ffi::OsStr,
@@ -17,11 +17,12 @@ use std::{
   thread::{sleep, spawn},
   time::Duration,
 };
-use termion::{
-  color, cursor, event::Key, input::TermRead, raw::IntoRawMode, style,
-};
+use termion::{event::Key, input::TermRead, raw::IntoRawMode, style};
 
+pub mod exercise;
 pub mod workout_list;
+
+const BACKUP_DIR: &str = "backup";
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Workout {
@@ -29,8 +30,8 @@ pub struct Workout {
   pub link: String,
   pub day: DayOfWeek,
   pub warmup_length: u64,
-  pub workout_type: WorkoutType,
-  pub sets: Vec<Vec<Vec<String>>>,
+  pub workout_type: ExerciseType,
+  pub sets: Vec<ExerciseSet>,
 }
 
 impl Workout {
@@ -39,8 +40,8 @@ impl Workout {
     title: &str,
     link: Option<String>,
     day: DayOfWeek,
-    workout_type: WorkoutType,
-    sets: Vec<Vec<Vec<String>>>,
+    workout_type: ExerciseType,
+    sets: Vec<ExerciseSet>,
   ) -> Self {
     Workout {
       title: title.to_string(),
@@ -50,34 +51,16 @@ impl Workout {
       workout_type,
       sets,
     }
-    .compress()
-  }
-
-  fn compress(mut self) -> Self {
-    let mut sets = vec![];
-    for i in 0..self.sets.len() {
-      let mut set = vec![];
-      let old_set = &self.sets[i];
-      for old_exercise in old_set.iter() {
-        let (head, tail) = old_exercise.split_at(1);
-        let head = &head[0];
-        let exercise = vec![String::from(head), tail.join(" ")];
-        set.push(exercise);
-      }
-      sets.push(set);
-    }
-    self.sets = sets;
-    self
   }
 
   /// Load a single yaml file as a workout.
   pub fn load_file(filename: &OsStr) -> Result<Self, Box<dyn Error>> {
     let f = File::open(filename)?;
     let result: Workout = from_reader(f)?;
-    Ok(result.compress())
+    Ok(result)
   }
 
-  /// Load everything - currently manually updated.
+  /// Load everything
   pub fn load_all() -> Result<Vec<Self>, Box<dyn Error>> {
     let mut paths = std::fs::read_dir("data")?
       .map(|res| res.map(|e| e.path()))
@@ -92,6 +75,16 @@ impl Workout {
     }
 
     Ok(workouts)
+  }
+
+  pub fn backup(&self) -> Result<(), Box<dyn Error>> {
+    if std::fs::read_dir(BACKUP_DIR).is_err() {
+      std::fs::create_dir(BACKUP_DIR)?;
+    }
+    let path = format!("data2/{}.yml", self.title);
+    let f = File::create(path)?;
+    to_writer(f, &self)?;
+    Ok(())
   }
 
   pub fn duration(&self) -> Duration {
@@ -114,25 +107,26 @@ impl Workout {
         } else {
           result.push(Screen::rest_with_set(set));
         }
-        result.push(Screen::set_with_rest(set, 1));
-        result.push(Screen::set_with_rest(set, 2));
-        result.push(Screen::set_with_rest(set, 3));
+        result.push(Screen::exercise_set_with_rest(set, 1));
+        result.push(Screen::exercise_set_with_rest(set, 2));
+        result.push(Screen::exercise_set_with_rest(set, 3));
         result.push(Screen::rest_with_set(set));
-        result.push(Screen::set_with_rest(set, 1));
-        result.push(Screen::set_with_rest(set, 2));
-        result.push(Screen::set_with_rest(set, 3));
+        result.push(Screen::exercise_set_with_rest(set, 1));
+        result.push(Screen::exercise_set_with_rest(set, 2));
+        result.push(Screen::exercise_set_with_rest(set, 3));
         result.push(Screen::rest_with_set(set));
-        result.push(Screen::set_with_rest(set, 1));
-        result.push(Screen::set_with_rest(set, 2));
+        result.push(Screen::exercise_set_with_rest(set, 1));
+        result.push(Screen::exercise_set_with_rest(set, 2));
         if i == self.sets.len() - 1 {
-          result.push(Screen::set_with_cooldown(set, 3));
+          result.push(Screen::exercise_set_with_cooldown(set, 3));
         } else {
-          result.push(Screen::set_with_rest(set, 3));
+          result.push(Screen::exercise_set_with_rest(set, 3));
         }
       }
     }
     result.push(Screen::cooldown());
 
+    // result
     result
   }
 
@@ -184,13 +178,13 @@ impl Workout {
     });
 
     // Iterate through the screens.
-    let mut i = LockedUInt { value: 0, max: screens.len() - 1 };
+    let mut i = 0;
     let mut current_time = 0;
     let mut overtime = false;
     loop {
       // get the current screen
-      let screen = screens.get(i.value).or(Some(&cooldown)).unwrap();
-      let time_elapsed = *times.get(i.value).unwrap();
+      let screen = screens.get(i).or(Some(&cooldown)).unwrap();
+      let time_elapsed = *times.get(i).unwrap();
       let current_total = screen.screen_type.duration().as_secs();
       let current_time_remaining = if current_time > current_total {
         overtime = true;
@@ -207,7 +201,7 @@ impl Workout {
       };
 
       // check if a sound needs to be played.
-      if current_time_remaining == 7 && i.value < i.max {
+      if current_time_remaining == 7 && i < screens.len() - 1 {
         audio.play("tick");
       }
       if current_time == 0 {
@@ -263,14 +257,14 @@ impl Workout {
           }
           // up and left will both go back one screen.
           Key::Up | Key::Left => {
-            i -= 1;
+            decrement(&mut i);
             current_time = 0;
             write!(stdout, "{}", clear_screen()).unwrap();
             stdout.flush().unwrap();
             continue;
           }
           Key::Home => {
-            i.value = 0;
+            i = 0;
             current_time = 0;
             write!(stdout, "{}", clear_screen()).unwrap();
             stdout.flush().unwrap();
@@ -278,8 +272,8 @@ impl Workout {
           }
           // down and right will both go forward one screen.
           Key::Down | Key::Right => {
-            if i.value < i.max {
-              i += 1;
+            if i < screens.len() - 1 {
+              increment(&mut i, screens.len() - 1);
               current_time = 0;
               write!(stdout, "{}", clear_screen()).unwrap();
               stdout.flush().unwrap();
@@ -287,7 +281,7 @@ impl Workout {
             }
           }
           Key::End => {
-            i.value = i.max;
+            i = screens.len() - 1;
             current_time = 0;
             write!(stdout, "{}", clear_screen()).unwrap();
             stdout.flush().unwrap();
@@ -302,54 +296,11 @@ impl Workout {
       current_time += 1;
 
       // check if current timer is >= screen's duration and increment the screen if necessary.
-      if current_time >= current_total && i.value < i.max {
+      if current_time >= current_total && i < screens.len() - 1 {
         i += 1;
         current_time = 0;
         continue;
       }
-    }
-  }
-
-  /// Iterates through a given set and displays to the screen
-  pub fn show_set(set: &[Vec<String>]) -> String {
-    let mut result = String::new();
-    for exercise in set.iter() {
-      result += &Self::show_exercise(exercise);
-    }
-    result
-  }
-
-  /// Show a single exercise
-  pub fn show_exercise(exercise: &[String]) -> String {
-    if let [exercise, description] = exercise {
-      format!(
-        "\n\
-      {}{}{}{}\n\
-      {}{}{}{}\n\
-      \n",
-        cursor::Left(u16::MAX),
-        style::Bold,
-        color::Fg(color::Red),
-        exercise,
-        cursor::Left(u16::MAX),
-        style::Reset,
-        color::Fg(color::Reset),
-        description,
-      )
-    } else {
-      format!(
-        "\n\
-        {}{}{}This Exercise is invalid - it does not have a title and description!{}{}\n\
-        {}{:#?}\n\
-        \n",
-        cursor::Left(u16::MAX),
-        style::Bold,
-        color::Fg(color::Red),
-        style::Reset,
-        color::Fg(color::Reset),
-        cursor::Left(u16::MAX),
-        exercise,
-      )
     }
   }
 
@@ -364,51 +315,54 @@ impl Default for Workout {
       "Default Workout",
       None,
       DayOfWeek::Monday,
-      WorkoutType::UpperBodyAbs,
+      ExerciseType::UpperBodyAbs,
       vec![
-        vec![
-          vec![
-            "Do stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
-          vec![
-            "Do other stuff".to_string(),
-            "This is how you do that other stuff".to_string(),
-          ],
-          vec![
-            "Do more stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
-        ],
-        vec![
-          vec![
-            "Do stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
-          vec![
-            "Do other stuff".to_string(),
-            "This is how you do that other stuff".to_string(),
-          ],
-          vec![
-            "Do more stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
-        ],
-        vec![
-          vec![
-            "Do stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
-          vec![
-            "Do other stuff".to_string(),
-            "This is how you do that other stuff".to_string(),
-          ],
-          vec![
-            "Do more stuff".to_string(),
-            "This is how you do that stuff".to_string(),
-          ],
-        ],
+        ExerciseSet {
+          exercises: (
+            Exercise::new("Do stuff", "This is how you do that stuff"),
+            Exercise::new(
+              "Do other stuff",
+              "This is how you do that other stuff",
+            ),
+            Exercise::new("Do more stuff", "This is how you do that stuff"),
+          ),
+          exercise_type: ExerciseType::LowerBodyAbs,
+        },
+        ExerciseSet {
+          exercises: (
+            Exercise::new("Do stuff", "This is how you do that stuff"),
+            Exercise::new(
+              "Do other stuff",
+              "This is how you do that other stuff",
+            ),
+            Exercise::new("Do more stuff", "This is how you do that stuff"),
+          ),
+          exercise_type: ExerciseType::LowerBodyAbs,
+        },
+        ExerciseSet {
+          exercises: (
+            Exercise::new("Do stuff", "This is how you do that stuff"),
+            Exercise::new(
+              "Do other stuff",
+              "This is how you do that other stuff",
+            ),
+            Exercise::new("Do more stuff", "This is how you do that stuff"),
+          ),
+          exercise_type: ExerciseType::LowerBodyAbs,
+        },
       ],
     )
+  }
+}
+
+fn increment(i: &mut usize, max: usize) {
+  if *i < max {
+    *i += 1;
+  }
+}
+
+fn decrement(i: &mut usize) {
+  if *i > 0 {
+    *i -= 1;
   }
 }

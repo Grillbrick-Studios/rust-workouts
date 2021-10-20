@@ -1,0 +1,40 @@
+---
+title: Workout 2.1 Lower Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/29?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Monday
+warmup_length: 5
+workout_type: LowerBodyAbs
+sets:
+  - exercises:
+      - name: Squat Pulses
+        description: "..."
+        selected: false
+      - name: Side Squat with Toe Taps
+        description: Squat leaning to each side and taping your toes.
+        selected: false
+      - name: Russian Leg Extensions
+        description: "Sit-up, Crunch and extend each leg."
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Pulse Lunges
+        description: Lunges - 10 seconds each side.
+        selected: false
+      - name: Glute Bridge March
+        description: "..."
+        selected: false
+      - name: Oblique Pulse Ups
+        description: That thing where you stab the ceiling with your feet.
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Bodyweight Glute Bridges
+        description: Glute Bridge repetedly thrusting the hips 😲!
+        selected: false
+      - name: Single Leg Glute Bridge Holds
+        description: Glute Bridge hold the entire time alternating which leg you are sticking up in the air.
+        selected: false
+      - name: Ab Bicycles
+        description: "..."
+        selected: false
+    exercise_type: LowerBodyAbs

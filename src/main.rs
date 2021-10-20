@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 const FILTER_BY_DAY: &str = "Filter by day of the week";
 const FILTER_BY_TYPE: &str = "Filter by workout type";
 const BACK: &str = "..";
-const RANDOM: &str = "random workout!";
+const RANDOM: &str = "Random Workout!";
 const QUIT: &str = "Quit";
 
 fn show_workouts() -> Result<(), Box<dyn Error>> {
@@ -32,7 +32,7 @@ fn show_workouts() -> Result<(), Box<dyn Error>> {
   loop {
     let title = if let Ok(filter) = DayOfWeek::from_str(filter.as_str()) {
       workout_menu(Filter::DayOfWeek(filter), &workouts)
-    } else if let Ok(filter) = WorkoutType::from_str(filter.as_str()) {
+    } else if let Ok(filter) = ExerciseType::from_str(filter.as_str()) {
       workout_menu(Filter::WorkoutType(filter), &workouts)
     } else if filter == BACK {
       result = main_menu();
@@ -51,7 +51,7 @@ fn show_workouts() -> Result<(), Box<dyn Error>> {
         if let Ok(filter) = DayOfWeek::from_str(filter.as_str()) {
           let filtered = workouts.filter_by_day(&filter);
           filtered.choose(&mut rand::thread_rng()).cloned()
-        } else if let Ok(filter) = WorkoutType::from_str(filter.as_str()) {
+        } else if let Ok(filter) = ExerciseType::from_str(filter.as_str()) {
           let filtered = workouts.filter_by_type(&filter);
           filtered.choose(&mut rand::thread_rng()).cloned()
         } else {
@@ -76,7 +76,7 @@ fn main_menu() -> String {
 
 fn filter_menu(result: &str, workouts: &[Workout]) -> String {
   let mut list: Vec<TerminalMenuItem> = match result {
-    FILTER_BY_TYPE => WorkoutType::VALUES
+    FILTER_BY_TYPE => ExerciseType::VALUES
       .iter()
       .filter(|v| !workouts.filter_by_type(v).is_empty())
       .map(|v| button(v.to_string()))

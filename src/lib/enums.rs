@@ -4,32 +4,32 @@ use std::fmt::Formatter;
 use std::str::FromStr;
 use DayOfWeek::*;
 
-#[derive(Serialize, Deserialize, Debug, PartialOrd, PartialEq)]
-pub enum WorkoutType {
+#[derive(Serialize, Deserialize, Debug, PartialOrd, PartialEq, Copy, Clone)]
+pub enum ExerciseType {
   LowerBodyAbs,
   UpperBodyAbs,
 }
 
 const LOWER_BODY_ABS: &str = "Lower Body & Abs";
 const UPPER_BODY_ABS: &str = "Upper Body & Abs";
-impl fmt::Display for WorkoutType {
+impl fmt::Display for ExerciseType {
   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
     write!(
       f,
       "{}",
       match self {
-        WorkoutType::LowerBodyAbs => LOWER_BODY_ABS,
-        WorkoutType::UpperBodyAbs => UPPER_BODY_ABS,
+        ExerciseType::LowerBodyAbs => LOWER_BODY_ABS,
+        ExerciseType::UpperBodyAbs => UPPER_BODY_ABS,
       }
     )
   }
 }
 
-impl WorkoutType {
+impl ExerciseType {
   pub const VALUES: [Self; 2] = [Self::LowerBodyAbs, Self::UpperBodyAbs];
 }
 
-impl FromStr for WorkoutType {
+impl FromStr for ExerciseType {
   type Err = ();
 
   fn from_str(str: &str) -> std::result::Result<Self, ()> {
@@ -101,5 +101,5 @@ impl fmt::Display for DayOfWeek {
 
 pub enum Filter {
   DayOfWeek(DayOfWeek),
-  WorkoutType(WorkoutType),
+  WorkoutType(ExerciseType),
 }

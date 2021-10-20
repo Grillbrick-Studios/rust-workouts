@@ -1,0 +1,40 @@
+---
+title: Workout 3.2 Upper Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/58?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Tuesday
+warmup_length: 5
+workout_type: UpperBodyAbs
+sets:
+  - exercises:
+      - name: Circle Push-ups
+        description: Looks more like a U as the push-ups rock back and forth.
+        selected: false
+      - name: Supermans
+        description: Self explanatory - pretend you are superman.
+        selected: false
+      - name: Hip-Drop with Reach
+        description: Alternate holding yourself up with each forearm and reaching up to the sky and dip your hip.
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Push-up to Side-plank
+        description: "Push-ups, reaching to the sky in between each alternating sides."
+        selected: false
+      - name: Reverse Snow-Angels
+        description: Snow angels on your stomach.
+        selected: false
+      - name: Advanced Planks
+        description: Push-up position arching your back and flexing your abs.
+        selected: false
+    exercise_type: UpperBodyAbs
+  - exercises:
+      - name: Diamond Push-ups
+        description: Close hand push-ups arms going down at an angle not outward.
+        selected: false
+      - name: Plank Up-Downs
+        description: Move from plank (elbow) position to push-up position and back.
+        selected: false
+      - name: Alternating V-tuck and V-ups
+        description: Crunches - Elbows to kness and hands to feet.
+        selected: false
+    exercise_type: UpperBodyAbs

@@ -1,0 +1,40 @@
+---
+title: Workout 2.3 Lower Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/32?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Thursday
+warmup_length: 5
+workout_type: LowerBodyAbs
+sets:
+  - exercises:
+      - name: High Knees
+        description: "..."
+        selected: false
+      - name: Low Cossack Lunges
+        description: Spread your legs and lunge to each side keeping your feet steady
+        selected: false
+      - name: Heel Taps
+        description: On your back knees up in sit-up position. Flex abs and lean from side to side tapping your heels on the side.
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Alternating Single Leg RDL
+        description: Standing - Reach down and touch the ground while lifting one leg behind you. Balance is key.
+        selected: false
+      - name: Squat Rocks
+        description: Squat down and shift your weight forward and backward on your heels and toes.
+        selected: false
+      - name: Star Crunches
+        description: "..."
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Four Way Squat Hops
+        description: Squat down and hop to the left -> right -> up -> down
+        selected: false
+      - name: Body Weight Curtsy Lunges
+        description: "..."
+        selected: false
+      - name: Frog Pump
+        description: "On your back, heels touching, thrust your hips forward 😲"
+        selected: false
+    exercise_type: LowerBodyAbs

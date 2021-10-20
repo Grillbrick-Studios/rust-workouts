@@ -1,0 +1,40 @@
+---
+title: Workout 1.3 Lower Body and Abs
+link: "https://vshred.com/workout/fat-loss-extreme-home/4?ref=workout%2Ffat-loss-extreme-home%2F"
+day: Thursday
+warmup_length: 5
+workout_type: LowerBodyAbs
+sets:
+  - exercises:
+      - name: Butt Kicks
+        description: Run in place kicking your own butt as much as possible.
+        selected: false
+      - name: Glute Bridge Marches
+        description: "..."
+        selected: false
+      - name: Oblique Pulse-ups
+        description: "..."
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Squat Pulses
+        description: "..."
+        selected: false
+      - name: Running in Place
+        description: "..."
+        selected: false
+      - name: Heel Taps
+        description: Sit-up position reaching to each side to tap your heels.
+        selected: false
+    exercise_type: LowerBodyAbs
+  - exercises:
+      - name: Squat with Toe Tap
+        description: Squat to each side tapping your toe
+        selected: false
+      - name: Single Leg Glute Bridge Holds
+        description: Glute bridge held the entire time alternating each leg up
+        selected: false
+      - name: Single Leg Stretch
+        description: Lay on your back reaching up with each leg and grabbing your calves
+        selected: false
+    exercise_type: LowerBodyAbs
