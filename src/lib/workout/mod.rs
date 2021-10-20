@@ -92,6 +92,10 @@ impl WorkoutImport {
     }
   }
 
+  pub fn import_dir() -> PathBuf {
+    settings_dir(IMPORT_DIR)
+  }
+
   /// Load everything
   pub fn load_all() -> Result<Vec<Self>, Box<dyn Error>> {
     let import_dir = settings_dir(IMPORT_DIR);

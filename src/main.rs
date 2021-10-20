@@ -43,7 +43,12 @@ fn import_workouts() -> Result<(), Box<dyn Error>> {
   let workouts = WorkoutImport::load_all()?;
 
   if workouts.is_empty() {
-    println!("None found.")
+    println!("None found.");
+    let path = WorkoutImport::import_dir().join("example.yml");
+    println!(
+      "If you would like to import a workout see the example: {:?}",
+      path
+    );
   } else {
     println!("Saving imports...");
     for workout in workouts.into_iter() {
