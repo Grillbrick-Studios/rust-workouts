@@ -1,12 +1,12 @@
 use self::exercise::Exercise;
-use super::super::{
-  screens::{Screen, ScreenType},
-  util::{clear_screen, just_left},
-};
 use super::{
   enums::{DayOfWeek, WorkoutType},
   locked_u_int::LockedUInt,
   timer::Timer,
+};
+use super::{
+  screens::{Screen, ScreenType},
+  util::{clear_screen, just_left},
 };
 use rusty_audio::Audio;
 use serde::{Deserialize, Serialize};
@@ -25,6 +25,7 @@ use termion::{
 };
 
 mod exercise;
+mod workout_list;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WorkoutPlus {

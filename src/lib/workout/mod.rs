@@ -1,10 +1,8 @@
-use self::{
+use super::{
   enums::{DayOfWeek, WorkoutType},
   locked_u_int::LockedUInt,
-  timer::Timer,
-};
-use super::{
   screens::{Screen, ScreenType},
+  timer::Timer,
   util::{clear_screen, just_left},
 };
 use rusty_audio::Audio;
@@ -23,11 +21,7 @@ use termion::{
   color, cursor, event::Key, input::TermRead, raw::IntoRawMode, style,
 };
 
-pub mod enums;
-mod locked_u_int;
-mod timer;
 pub mod workout_list;
-pub mod workout_plus;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Workout {

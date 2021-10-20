@@ -1,15 +1,12 @@
-use crate::lib::workout::enums::Filter;
 use lib::{
+  enums::*,
   util::clear_screen,
-  workout::{
-    enums::{DayOfWeek, WorkoutType},
-    workout_list::WorkoutList,
-    Workout,
-  },
+  workout::{workout_list::WorkoutList, Workout},
 };
 use rand::prelude::SliceRandom;
+use std::error::Error;
 use std::process::exit;
-use std::{error::Error, str::FromStr};
+use std::str::FromStr;
 use terminal_menu::{button, label, menu, mut_menu, run, TerminalMenuItem};
 
 pub mod lib;

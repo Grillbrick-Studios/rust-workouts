@@ -1,6 +1,6 @@
-use super::{
-  super::enums::{DayOfWeek, WorkoutType},
-  Workout,
+use super::super::{
+  enums::{DayOfWeek, WorkoutType},
+  workout::Workout,
 };
 
 pub trait WorkoutList {
