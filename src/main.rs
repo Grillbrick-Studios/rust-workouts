@@ -26,7 +26,7 @@ const RANDOM: &str = "Random Workout!";
 const QUIT: &str = "Quit";
 
 fn pause() -> Result<(), Box<dyn Error>> {
-  use std::io::{self, prelude};
+  use std::io::{self};
   let mut stdin = io::stdin();
   let mut stdout = io::stdout();
 

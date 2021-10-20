@@ -8,7 +8,9 @@ use super::{
 use rusty_audio::Audio;
 use serde::{Deserialize, Serialize};
 use serde_yaml::{from_reader, to_writer};
+use std::path::{Path, PathBuf};
 use std::{
+  env,
   error::Error,
   ffi::OsStr,
   fs::File,
@@ -24,6 +26,21 @@ pub mod workout_list;
 
 const DATA_DIR: &str = "data";
 const IMPORT_DIR: &str = "import";
+const SOUND_DIR: &str = "sounds";
+
+fn settings_dir(p: &str) -> PathBuf {
+  match env::var("WORKOUT_CONFIG_DIR") {
+    Ok(s) => {
+      let path = Path::new(&s);
+      path.join(p)
+    }
+    Err(_) => {
+      let home = env::var_os("HOME").unwrap();
+      let path = Path::new(&home);
+      path.join(".config").join("workouts").join(p)
+    }
+  }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WorkoutImport {
@@ -77,7 +94,8 @@ impl WorkoutImport {
 
   /// Load everything
   pub fn load_all() -> Result<Vec<Self>, Box<dyn Error>> {
-    let paths = match std::fs::read_dir(IMPORT_DIR) {
+    let import_dir = settings_dir(IMPORT_DIR);
+    let paths = match std::fs::read_dir(import_dir) {
       Ok(p) => p,
       Err(_) => {
         return Ok(vec![]);
@@ -137,7 +155,8 @@ impl Workout {
 
   /// Load everything
   pub fn load_all() -> Result<Vec<Self>, Box<dyn Error>> {
-    let mut paths = std::fs::read_dir("data")?
+    let data_dir = settings_dir(DATA_DIR);
+    let mut paths = std::fs::read_dir(data_dir)?
       .map(|res| res.map(|e| e.path()))
       .collect::<Result<Vec<_>, std::io::Error>>()?;
     paths.sort();
@@ -230,9 +249,11 @@ impl Workout {
 
     // initialize audio
     let mut audio = Audio::new();
-    audio.add("tick", Workout::TICK);
-    audio.add("bell", Workout::BELL);
-    audio.add("whistle", Workout::WHISTLE);
+    let sound_path = settings_dir(SOUND_DIR);
+
+    audio.add("tick", sound_path.join(Workout::TICK).to_str().unwrap());
+    audio.add("bell", sound_path.join(Workout::BELL).to_str().unwrap());
+    audio.add("whistle", sound_path.join(Workout::WHISTLE).to_str().unwrap());
 
     // Go into raw mode
     let mut stdout = stdout().into_raw_mode().unwrap();
@@ -379,9 +400,9 @@ impl Workout {
     }
   }
 
-  const TICK: &'static str = "sounds/tick.wav";
-  const BELL: &'static str = "sounds/bell.wav";
-  const WHISTLE: &'static str = "sounds/whistle.wav";
+  const TICK: &'static str = "tick.wav";
+  const BELL: &'static str = "bell.wav";
+  const WHISTLE: &'static str = "whistle.wav";
 }
 
 impl Default for Workout {
