@@ -23,6 +23,82 @@ pub mod exercise;
 pub mod workout_list;
 
 const BACKUP_DIR: &str = "backup";
+const DATA_DIR: &str = "data";
+const IMPORT_DIR: &str = "import";
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct WorkoutImport {
+  pub title: String,
+  pub link: String,
+  pub day: DayOfWeek,
+  pub warmup_length: u64,
+  pub workout_type: ExerciseType,
+  pub sets: Vec<Vec<Vec<String>>>,
+}
+
+impl WorkoutImport {
+  /// Load a single yaml file as a workout.
+  pub fn load_file(filename: &OsStr) -> Result<Self, Box<dyn Error>> {
+    let f = File::open(filename)?;
+    let result: WorkoutImport = from_reader(f)?;
+    Ok(result.compress())
+  }
+
+  fn compress(mut self) -> Self {
+    let mut sets = vec![];
+    for i in 0..self.sets.len() {
+      let mut set = vec![];
+      let old_set = &self.sets[i];
+      for old_exercise in old_set.iter() {
+        let (head, tail) = old_exercise.split_at(1);
+        let head = &head[0];
+        let exercise = vec![String::from(head), tail.join(" ")];
+        set.push(exercise);
+      }
+      sets.push(set);
+    }
+    self.sets = sets;
+    self
+  }
+
+  pub fn upgrade(self) -> Workout {
+    let mut sets = vec![];
+    for set in self.sets {
+      sets.push(ExerciseSet::from_vec(set, &self.workout_type));
+    }
+    Workout {
+      title: self.title,
+      link: self.link,
+      day: self.day,
+      warmup_length: self.warmup_length,
+      workout_type: self.workout_type,
+      sets,
+    }
+  }
+
+  /// Load everything
+  pub fn load_all() -> Result<Vec<Self>, Box<dyn Error>> {
+    let paths = match std::fs::read_dir(IMPORT_DIR) {
+      Ok(p) => p,
+      Err(_) => {
+        return Ok(vec![]);
+      }
+    };
+    let mut paths = paths
+      .map(|res| res.map(|e| e.path()))
+      .collect::<Result<Vec<_>, std::io::Error>>()?;
+    paths.sort();
+    let mut workouts = vec![];
+    for path in paths {
+      let s = path.as_os_str();
+      if let Ok(workout) = Self::load_file(s) {
+        workouts.push(workout);
+      }
+    }
+
+    Ok(workouts)
+  }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Workout {
@@ -77,8 +153,8 @@ impl Workout {
     Ok(workouts)
   }
 
-  pub fn backup(&self) -> Result<(), Box<dyn Error>> {
-    if std::fs::read_dir(BACKUP_DIR).is_err() {
+  pub fn save(&self) -> Result<(), Box<dyn Error>> {
+    if std::fs::read_dir(DATA_DIR).is_err() {
       std::fs::create_dir(BACKUP_DIR)?;
     }
     let path = format!("data2/{}.yml", self.title);
