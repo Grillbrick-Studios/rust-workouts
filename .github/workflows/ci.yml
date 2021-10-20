@@ -67,16 +67,16 @@ jobs:
         run: sudo apt update
       - name: Install alsa
         run: sudo apt install -y --no-install-recommends libasound2-dev pkg-config
-      - name: Run cargo publish for rodio
+      - name: Run cargo publish for workout
         continue-on-error: true
         run: |
-          RODIO_TMP=$(mktemp /tmp/rodioXXX.txt) || echo "::error::mktemp error"
-          echo "RODIO_TMP=$RODIO_TMP" >> $GITHUB_ENV
-          cargo publish --token $CRATESIO_TOKEN 2> $RODIO_TMP
-      - name: Check if rodio is already published
+          TMP=$(mktemp /tmp/workoutXXX.txt) || echo "::error::mktemp error"
+          echo "TMP=$TMP" >> $GITHUB_ENV
+          cargo publish --token $CRATESIO_TOKEN 2> $TMP
+      - name: Check if workout is already published
         run: |
           empty=0
-          RODIO_TMP="${{ env.RODIO_TMP }}"
-          grep -q '[^[:space:]]' < $RODIO_TMP || empty=1
-          [ $empty -eq 0 ] && cat $RODIO_TMP
-          [ $empty -eq 1 ] || grep -q "is already uploaded" < $RODIO_TMP
+          TMP="${{ env.TMP }}"
+          grep -q '[^[:space:]]' < $TMP || empty=1
+          [ $empty -eq 0 ] && cat $TMP
+          [ $empty -eq 1 ] || grep -q "is already uploaded" < $TMP
