@@ -78,6 +78,8 @@ impl Screen {
     let mut output = String::new();
     let screen_type = ScreenType::WarmUp(Duration::from_secs(duration));
 
+    let mut set = set.clone();
+    set.select(4);
     output += warmup().to_string().as_str();
     output += format!(
       "{}{}UP NEXT:{}",
@@ -91,10 +93,12 @@ impl Screen {
     Screen { output, screen_type }
   }
 
-  pub fn exercise_set_with_rest(set: &ExerciseSet, id: usize) -> Self {
+  pub fn exercise_set_with_rest(set: &ExerciseSet, id: u8) -> Self {
     let mut output = String::new();
-    let screen_type = ScreenType::exercise(id);
+    let screen_type = ScreenType::exercise(id as usize);
 
+    let mut set = set.clone();
+    set.select(id);
     output += set.to_string().as_str();
     output += format!(
       "{}{}UP NEXT:{}",
@@ -108,10 +112,12 @@ impl Screen {
     Screen { output, screen_type }
   }
 
-  pub fn exercise_set_with_cooldown(set: &ExerciseSet, id: usize) -> Self {
+  pub fn exercise_set_with_cooldown(set: &ExerciseSet, id: u8) -> Self {
     let mut output = String::new();
-    let screen_type = ScreenType::exercise(id);
+    let screen_type = ScreenType::exercise(id as usize);
 
+    let mut set = set.clone();
+    set.select(id);
     output += set.to_string().as_str();
     output += format!(
       "{}{}UP NEXT:{}",
@@ -138,6 +144,8 @@ impl Screen {
     let mut output = String::new();
     let screen_type = ScreenType::rest();
 
+    let mut set = set.clone();
+    set.select(4);
     output += rest().to_string().as_str();
     output += format!(
       "{}{}UP NEXT:{}",

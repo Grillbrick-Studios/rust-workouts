@@ -4,7 +4,7 @@ use std::fmt;
 use std::fmt::Formatter;
 use termion::{color, cursor, style};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Exercise {
   pub name: String,
   pub description: String,
@@ -19,11 +19,11 @@ impl Exercise {
   }
 
   pub fn from_vec(v: Vec<String>) -> Self {
-    let mut iter = v.into_iter();
-    let name = if let Some(s) = iter.next() { s } else { "".to_owned() };
+    let mut i = v.into_iter();
+    let name = if let Some(s) = i.next() { s } else { "".to_owned() };
     let mut description = String::new();
     loop {
-      if let Some(s) = iter.next() {
+      if let Some(s) = i.next() {
         description.push_str(s.as_str());
       } else {
         return Self { name, description, selected: false };
@@ -53,7 +53,7 @@ impl fmt::Display for Exercise {
   }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ExerciseSet {
   pub exercises: (Exercise, Exercise, Exercise),
   pub exercise_type: ExerciseType,
@@ -61,23 +61,48 @@ pub struct ExerciseSet {
 
 impl ExerciseSet {
   pub fn from_vec(v: Vec<Vec<String>>, t: &ExerciseType) -> Self {
-    let mut iter = v.into_iter();
-    let e1 = if let Some(s) = iter.next() {
+    let mut i = v.into_iter();
+    let e1 = if let Some(s) = i.next() {
       Exercise::from_vec(s)
     } else {
       panic!("Invalid vector sent to Exercise Set");
     };
-    let e2 = if let Some(s) = iter.next() {
+    let e2 = if let Some(s) = i.next() {
       Exercise::from_vec(s)
     } else {
       panic!("Invalid vector sent to Exercise Set");
     };
-    let e3 = if let Some(s) = iter.next() {
+    let e3 = if let Some(s) = i.next() {
       Exercise::from_vec(s)
     } else {
       panic!("Invalid vector sent to Exercise Set");
     };
     ExerciseSet { exercises: (e1, e2, e3), exercise_type: *t }
+  }
+
+  pub fn select(&mut self, i: u8) {
+    match i {
+      1 => {
+        self.exercises.0.selected = true;
+        self.exercises.1.selected = false;
+        self.exercises.2.selected = false;
+      }
+      2 => {
+        self.exercises.0.selected = false;
+        self.exercises.1.selected = true;
+        self.exercises.2.selected = false;
+      }
+      3 => {
+        self.exercises.0.selected = false;
+        self.exercises.1.selected = false;
+        self.exercises.2.selected = true;
+      }
+      _ => {
+        self.exercises.0.selected = false;
+        self.exercises.1.selected = false;
+        self.exercises.2.selected = false;
+      }
+    }
   }
 }
 
