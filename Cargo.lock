@@ -964,9 +964,9 @@ dependencies = [
 
 [[package]]
 name = "terminal-menu"
-version = "2.0.0"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "810f3b2269720180c2a53c6b1efa97d81711aca02e8b3ceb6a30f65d70e8f65b"
+checksum = "de282683db7ba879f28a69c64c1bba99eb210d8430661d8c2fa2ee4cbddde4ed"
 dependencies = [
  "crossterm",
  "lazy_static",
