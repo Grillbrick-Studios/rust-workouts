@@ -1,19 +1,17 @@
-use crate::lib::workout::WorkoutImport;
+use anyhow::Result;
 use lib::{
   enums::*,
   util::*,
-  workout::{workout_list::WorkoutList, Workout},
+  workout::{workout_list::WorkoutList, Workout, WorkoutImport},
 };
 use rand::prelude::SliceRandom;
-use std::error::Error;
-use std::process::exit;
-use std::str::FromStr;
+use std::{process::exit, str::FromStr};
 use terminal_menu::{button, label, menu, mut_menu, run, TerminalMenuItem};
 use workout_paths::import_path;
 
 pub mod lib;
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<()> {
   import_workouts()?;
   show_workouts()?;
   Ok(())
@@ -25,7 +23,7 @@ const BACK: &str = "..";
 const RANDOM: &str = "Random Workout!";
 const QUIT: &str = "Quit";
 
-fn import_workouts() -> Result<(), Box<dyn Error>> {
+fn import_workouts() -> Result<()> {
   println!("Checking for imports...");
   let workouts = WorkoutImport::load_all()?;
 
@@ -49,7 +47,7 @@ fn import_workouts() -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
-fn show_workouts() -> Result<(), Box<dyn Error>> {
+fn show_workouts() -> Result<()> {
   // first load the workouts
   let workouts = Workout::load_all()?;
 

@@ -19,9 +19,11 @@ serde_yaml = "0.8.21"
 terminal-menu = "2.0.0"
 termion = "1.5.6"
 workout-paths = { path = "workout-paths" }
+anyhow = "1.0.44"
 
 [build-dependencies]
 workout-paths = { path = "workout-paths" }
+anyhow = "1.0.44"
 
 [features]
 

@@ -1,20 +1,22 @@
-use self::exercise::{Exercise, ExerciseSet};
-use super::{
-  enums::{DayOfWeek, ExerciseType},
-  screen::{Screen, ScreenType},
-  timer::Timer,
-  util::{clear_screen, just_left},
+use crate::{
+  lib::util::pause,
+  lib::workout::exercise::{Exercise, ExerciseSet},
+  lib::{
+    enums::{DayOfWeek, ExerciseType},
+    screen::{Screen, ScreenType},
+    timer::Timer,
+    util::{clear_screen, just_left},
+  },
 };
+use anyhow::Result;
 use rusty_audio::Audio;
 use serde::{Deserialize, Serialize};
 use serde_yaml::{from_reader, to_writer};
 
-use crate::lib::util::pause;
-use std::path::Path;
 use std::{
-  error::Error,
   fs::File,
   io::{stdin, stdout, Write},
+  path::Path,
   sync::mpsc,
   thread::{sleep, spawn},
   time::Duration,
@@ -37,7 +39,7 @@ pub struct WorkoutImport {
 
 impl WorkoutImport {
   /// Load a single yaml file as a workout.
-  pub fn load_file(filename: &Path) -> Result<Self, Box<dyn Error>> {
+  pub fn load_file(filename: &Path) -> Result<Self> {
     let f = File::open(filename)?;
     let result: WorkoutImport = from_reader(f)?;
     Ok(result.compress())
@@ -76,7 +78,7 @@ impl WorkoutImport {
   }
 
   /// Load everything
-  pub fn load_all() -> Result<Vec<Self>, Box<dyn Error>> {
+  pub fn load_all() -> Result<Vec<Self>> {
     println!("Loading Workouts from {:?}", import_path());
     let paths = match std::fs::read_dir(import_path()) {
       Ok(p) => p,
@@ -135,14 +137,14 @@ impl Workout {
   }
 
   /// Load a single yaml file as a workout.
-  pub fn load_file(filename: &Path) -> Result<Self, Box<dyn Error>> {
+  pub fn load_file(filename: &Path) -> Result<Self> {
     let f = File::open(filename)?;
     let result: Workout = from_reader(f)?;
     Ok(result)
   }
 
   /// Load everything
-  pub fn load_all() -> Result<Vec<Self>, Box<dyn Error>> {
+  pub fn load_all() -> Result<Vec<Self>> {
     println!("Loading Workouts from {:?}", data_path());
     let paths = std::fs::read_dir(data_path())?
       .map(|res| res.map(|e| e.path()))
@@ -164,7 +166,7 @@ impl Workout {
     Ok(workouts)
   }
 
-  pub fn save(&self) -> Result<(), Box<dyn Error>> {
+  pub fn save(&self) -> Result<()> {
     if std::fs::read_dir(DATA_DIR).is_err() {
       std::fs::create_dir(DATA_DIR)?;
     }

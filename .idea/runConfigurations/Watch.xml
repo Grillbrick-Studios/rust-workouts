@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Watch" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="false" nameIsGenerated="true">
+  <configuration default="false" name="Watch" type="CargoCommandRunConfiguration" factoryName="Cargo Command" singleton="true" nameIsGenerated="true">
     <option name="command" value="watch -cx clippy -w &quot;src/.&quot; --why" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="channel" value="DEFAULT" />
