@@ -8,11 +8,11 @@ use super::{
 use rusty_audio::Audio;
 use serde::{Deserialize, Serialize};
 use serde_yaml::{from_reader, to_writer};
-use std::path::{Path, PathBuf};
+
+use crate::lib::util::pause;
+use std::path::Path;
 use std::{
-  env,
   error::Error,
-  ffi::OsStr,
   fs::File,
   io::{stdin, stdout, Write},
   sync::mpsc,
@@ -20,27 +20,10 @@ use std::{
   time::Duration,
 };
 use termion::{event::Key, input::TermRead, raw::IntoRawMode, style};
+use workout_paths::*;
 
 pub mod exercise;
 pub mod workout_list;
-
-const DATA_DIR: &str = "data";
-const IMPORT_DIR: &str = "import";
-const SOUND_DIR: &str = "sounds";
-
-fn settings_dir(p: &str) -> PathBuf {
-  match env::var("WORKOUT_CONFIG_DIR") {
-    Ok(s) => {
-      let path = Path::new(&s);
-      path.join(p)
-    }
-    Err(_) => {
-      let home = env::var_os("HOME").unwrap();
-      let path = Path::new(&home);
-      path.join(".config").join("workouts").join(p)
-    }
-  }
-}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WorkoutImport {
@@ -54,7 +37,7 @@ pub struct WorkoutImport {
 
 impl WorkoutImport {
   /// Load a single yaml file as a workout.
-  pub fn load_file(filename: &OsStr) -> Result<Self, Box<dyn Error>> {
+  pub fn load_file(filename: &Path) -> Result<Self, Box<dyn Error>> {
     let f = File::open(filename)?;
     let result: WorkoutImport = from_reader(f)?;
     Ok(result.compress())
@@ -92,14 +75,10 @@ impl WorkoutImport {
     }
   }
 
-  pub fn import_dir() -> PathBuf {
-    settings_dir(IMPORT_DIR)
-  }
-
   /// Load everything
   pub fn load_all() -> Result<Vec<Self>, Box<dyn Error>> {
-    let import_dir = settings_dir(IMPORT_DIR);
-    let paths = match std::fs::read_dir(import_dir) {
+    println!("Loading Workouts from {:?}", import_path());
+    let paths = match std::fs::read_dir(import_path()) {
       Ok(p) => p,
       Err(_) => {
         return Ok(vec![]);
@@ -111,9 +90,14 @@ impl WorkoutImport {
     paths.sort();
     let mut workouts = vec![];
     for path in paths {
-      let s = path.as_os_str();
-      if let Ok(workout) = Self::load_file(s) {
-        workouts.push(workout);
+      match Self::load_file(&path) {
+        Ok(workout) => {
+          workouts.push(workout);
+        }
+        Err(e) => {
+          println!("Error importing workout {:?}", e);
+          pause()?;
+        }
       }
     }
 
@@ -151,7 +135,7 @@ impl Workout {
   }
 
   /// Load a single yaml file as a workout.
-  pub fn load_file(filename: &OsStr) -> Result<Self, Box<dyn Error>> {
+  pub fn load_file(filename: &Path) -> Result<Self, Box<dyn Error>> {
     let f = File::open(filename)?;
     let result: Workout = from_reader(f)?;
     Ok(result)
@@ -159,18 +143,23 @@ impl Workout {
 
   /// Load everything
   pub fn load_all() -> Result<Vec<Self>, Box<dyn Error>> {
-    let data_dir = settings_dir(DATA_DIR);
-    let mut paths = std::fs::read_dir(data_dir)?
+    println!("Loading Workouts from {:?}", data_path());
+    let paths = std::fs::read_dir(data_path())?
       .map(|res| res.map(|e| e.path()))
       .collect::<Result<Vec<_>, std::io::Error>>()?;
-    paths.sort();
     let mut workouts = vec![];
     for path in paths {
-      let s = path.as_os_str();
-      if let Ok(workout) = Workout::load_file(s) {
-        workouts.push(workout);
+      match Self::load_file(&path) {
+        Ok(workout) => {
+          workouts.push(workout);
+        }
+        Err(e) => {
+          println!("Error loading workout file {:?}", e);
+          pause()?;
+        }
       }
     }
+    pause()?;
 
     Ok(workouts)
   }
@@ -253,7 +242,7 @@ impl Workout {
 
     // initialize audio
     let mut audio = Audio::new();
-    let sound_path = settings_dir(SOUND_DIR);
+    let sound_path = sounds_path();
 
     audio.add("tick", sound_path.join(Workout::TICK).to_str().unwrap());
     audio.add("bell", sound_path.join(Workout::BELL).to_str().unwrap());

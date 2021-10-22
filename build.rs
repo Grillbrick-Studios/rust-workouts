@@ -1,13 +1,7 @@
 use std::error::Error;
-use std::{
-  env,
-  fs::{copy, create_dir_all, read_dir},
-  path::Path,
-};
+use std::fs::{copy, create_dir_all, read_dir};
 
-const DATA_DIR: &str = "data";
-const IMPORT_DIR: &str = "import";
-const SOUNDS_DIR: &str = "sounds";
+use workout_paths::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
   println!("cargo:rerun-if-changed=data");
@@ -23,23 +17,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn my_copy(path: &str) -> Result<(), Box<dyn Error>> {
   // first get the input and output directories
-  let out_dir = match env::var("WORKOUT_CONFIG_DIR") {
-    Ok(s) => {
-      let path = Path::new(&s);
-      path.to_path_buf().into_os_string()
-    }
-    Err(_) => {
-      let home = env::var_os("HOME").unwrap();
-      let path = Path::new(&home);
-      let path = path.join(".config").join("workouts");
-      path.into_os_string()
-    }
-  };
-  let in_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-
-  // generate paths for them
-  let out_dir = Path::new(&out_dir);
-  let in_dir = Path::new(&in_dir);
+  let out_dir = Source::Output.path();
+  let in_dir = Source::Input.path();
 
   // join them with the final output directories
   let out_dir = out_dir.join(path);

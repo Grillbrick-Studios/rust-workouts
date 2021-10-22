@@ -18,5 +18,12 @@ serde = { version = "1.0.130", features = ["derive"] }
 serde_yaml = "0.8.21"
 terminal-menu = "2.0.0"
 termion = "1.5.6"
+workout-paths = { path = "workout-paths" }
+
+[build-dependencies]
+workout-paths = { path = "workout-paths" }
 
 [features]
+
+[workspace]
+members = ["workout-paths"]

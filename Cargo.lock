@@ -1162,7 +1162,12 @@ dependencies = [
  "serde_yaml",
  "terminal-menu",
  "termion",
+ "workout-paths",
 ]
+
+[[package]]
+name = "workout-paths"
+version = "0.1.0"
 
 [[package]]
 name = "yaml-rust"
