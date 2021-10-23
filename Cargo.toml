@@ -29,3 +29,7 @@ anyhow = "1.0.44"
 
 [workspace]
 members = ["workout-paths"]
+
+[package.metadata.appimage]
+assets=["import", "data", "sounds"]
+
